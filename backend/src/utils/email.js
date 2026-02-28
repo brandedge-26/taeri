@@ -29,20 +29,22 @@ const otpEmailTemplate = (otp, expiresMinutes) => {
 
 
 
-
+    
 
 // SEND OTP EMAIL
 export const sendOtpEmail = async ({ to, otp, expiresMinutes = 10 }) => {
 
     const tpl = otpEmailTemplate(otp, expiresMinutes);
-    const from = ENV.SMTP_FROM || ENV.SMTP_USER;
 
-    return mailTransporter.sendMail({
-        from,
-        to,
+
+    const mailOptions = {
+        from: `"TAERI" <${ENV.SENDER_EMAIL}>`,
+        to: to,
         subject: tpl.subject,
         text: tpl.text,
-        html: tpl.html
-    });
+        html: tpl.html,
+    };
+
+    return mailTransporter.sendMail(mailOptions);
 
 };

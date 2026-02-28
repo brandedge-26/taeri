@@ -1,7 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import mongoSanitize from "express-mongo-sanitize";
+import { sanitizeInput } from "./middlewares/sanitize.middleware.js";
 import { connectDB } from "./config/db.js";
 import { globalErrorHandler } from "./middlewares/error.middleware.js";
 import { authRoutes } from "./routes/auth.routes.js";
@@ -34,12 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // NOSQL INJECTION PROTECTION
-app.use(mongoSanitize({
-    replaceWith: '_',
-    onSanitize: ({ req, key }) => {
-        console.warn(`Sanitized key: ${key} in request from IP: ${req.ip}`);
-    },
-}));
+app.use(sanitizeInput);
 
 
 

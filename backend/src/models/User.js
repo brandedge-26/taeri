@@ -24,12 +24,14 @@ const userSchema = new mongoose.Schema(
             type: Number,
             min: 0,
             max: 120,
-            required: true,
         },
         livingSituation: {
             type: String,
             enum: ["alone", "family", "spouse"],
-            required: true,
+        },
+        isEmailVerified: {
+            type: Boolean,
+            default: false,
         },
     },
     { timestamps: true }

@@ -12,8 +12,8 @@ export const registerSchema = z.object({
     name: z.string().trim().min(1),
     email: z.string().email(),
     password: z.string().min(6),
-    age: z.number().int().min(0).max(120),
-    livingSituation: livingSituationEnum,
+    age: z.number().int().min(0).max(120).optional(),
+    livingSituation: livingSituationEnum.optional(),
 });
 
 
@@ -30,4 +30,12 @@ export const loginSchema = z.object({
 export const otpSchema = z.object({
     email: z.string().email(),
     otp: z.string().trim().regex(/^\d{6}$/),
+});
+
+
+// PROFILE UPDATE SCHEMA
+export const profileUpdateSchema = z.object({
+    name: z.string().trim().min(1).optional(),
+    age: z.number().int().min(0).max(120),
+    livingSituation: livingSituationEnum
 });

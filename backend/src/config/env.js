@@ -28,7 +28,6 @@ const validateEnv = () => {
         process.exit(1);
     }
 
-    console.log('✅ Environment variables validated successfully');
 };
 
 validateEnv();
@@ -43,8 +42,7 @@ export const ENV = {
     ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET,
     REFRESH_TOKEN_SECRET: process.env.REFRESH_TOKEN_SECRET,
 
-    SMTP_USER: process.env.SMTP_USER,
-    SMTP_PASS: process.env.SMTP_PASS,
-    SMTP_FROM: process.env.SMTP_FROM
+    SENDER_EMAIL: process.env.SENDER_EMAIL,
+    SENDER_PASS: process.env.SENDER_PASS,
 
 }
