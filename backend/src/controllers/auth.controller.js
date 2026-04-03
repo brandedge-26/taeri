@@ -1,11 +1,12 @@
-import { registerSchema, loginSchema, otpSchema, profileUpdateSchema } from "../schemas/auth.schema.js";
+import { registerSchema, loginSchema, otpSchema, profileUpdateSchema, resetPasswordSchema } from "../schemas/auth.schema.js";
 import { User } from "../models/User.js";
 import { Otp } from "../models/Otp.js";
+import { Assessment } from "../models/Assessment.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 import { generateOtp, hashOtp, verifyOtp } from "../utils/otp.js";
 import bcrypt from "bcrypt";
 import { ENV } from "../config/env.js";
-import { sendOtpEmail } from "../utils/email.js";
+import { sendOtpEmail, sendWelcomeEmail } from "../utils/email.js";
 import { z } from "zod";
 
 
@@ -62,8 +63,8 @@ const registerController = async (req, res, next) => {
 
 
         // Smart deletion - Only delete expired or consumed OTPs
-        await Otp.deleteMany({ 
-            email, 
+        await Otp.deleteMany({
+            email,
             purpose: "register",
             $or: [
                 { expiresAt: { $lt: new Date() } },  // Expired
@@ -90,7 +91,8 @@ const registerController = async (req, res, next) => {
                 userId: newUser._id,
                 name: newUser.name,
                 email: newUser.email,
-                age: newUser.age
+                age: newUser.age,
+                profilePicture: null,
             }
         });
 
@@ -141,7 +143,7 @@ const verifyOtpController = async (req, res, next) => {
         const currentTime = new Date();
         if (otpDoc.expiresAt < currentTime) {
             const expiredMinutesAgo = Math.floor((currentTime - otpDoc.expiresAt) / (60 * 1000));
-            
+
             const err = new Error(
                 `OTP expired ${expiredMinutesAgo} minute(s) ago. Please request a new OTP.`
             );
@@ -178,6 +180,14 @@ const verifyOtpController = async (req, res, next) => {
         if (user && !user.isEmailVerified) {
             user.isEmailVerified = true;
             await user.save();
+            
+            // Send welcome email after successful verification
+            try {
+                await sendWelcomeEmail({ to: email, name: user.name });
+            } catch (emailErr) {
+                console.log("Welcome email failed:", emailErr.message);
+                // Don't fail the request if welcome email fails
+            }
         }
 
         return res.status(200).json({
@@ -255,7 +265,9 @@ const loginController = async (req, res, next) => {
                 userId: user._id,
                 name: user.name,
                 email: user.email,
-                age: user.age
+                age: user.age,
+                livingSituation: user.livingSituation,
+                profilePicture: user.profilePicture,
             }
         });
 
@@ -328,15 +340,15 @@ const resendOtpController = async (req, res, next) => {
 
 
         // Check if there's a valid recent OTP (prevent spam)
-        const recentValidOtp = await Otp.findOne({ 
-            email, 
+        const recentValidOtp = await Otp.findOne({
+            email,
             purpose: "register",
             expiresAt: { $gt: new Date() },           // Not expired
             consumedAt: null,                          // Not used
             createdAt: { $gte: new Date(Date.now() - 60 * 1000) } // Last 1 minute
         });
 
-        
+
         if (recentValidOtp) {
             const err = new Error("OTP already sent. Please wait 1 minute before requesting again.");
             err.statusCode = 429;
@@ -352,8 +364,8 @@ const resendOtpController = async (req, res, next) => {
 
 
         // Smart deletion - Only delete expired or consumed OTPs
-        await Otp.deleteMany({ 
-            email, 
+        await Otp.deleteMany({
+            email,
             purpose: "register",
             $or: [
                 { expiresAt: { $lt: new Date() } },  // Expired
@@ -414,7 +426,7 @@ const updateProfileController = async (req, res, next) => {
         if (data.name) updateData.name = data.name;
 
 
-        const user = await User.findByIdAndUpdate(userId, updateData, { new: true });
+        const user = await User.findByIdAndUpdate(userId, updateData, { returnDocument: 'after' });
 
         if (!user) {
             const err = new Error("User not found.");
@@ -422,7 +434,7 @@ const updateProfileController = async (req, res, next) => {
             throw err;
         }
 
-        
+
         return res.status(200).json({
             success: true,
             message: "Profile updated successfully.",
@@ -431,7 +443,8 @@ const updateProfileController = async (req, res, next) => {
                 name: user.name,
                 email: user.email,
                 age: user.age,
-                livingSituation: user.livingSituation
+                livingSituation: user.livingSituation,
+                profilePicture: user.profilePicture,
             }
         });
 
@@ -443,6 +456,223 @@ const updateProfileController = async (req, res, next) => {
 
 
 
+// UPLOAD AVATAR CONTROLLER
+const uploadAvatarController = async (req, res, next) => {
+    try {
+
+        const userId = req.user?.id;
+        if (!userId) {
+            const err = new Error("Unauthorized.");
+            err.statusCode = 401;
+            throw err;
+        }
+
+        if (!req.file) {
+            const err = new Error("No image file provided.");
+            err.statusCode = 400;
+            throw err;
+        }
+
+        const imageUrl = req.file.path;
+
+        const user = await User.findByIdAndUpdate(
+            userId,
+            { profilePicture: imageUrl },
+            { returnDocument: 'after' }
+        );
+
+        if (!user) {
+            const err = new Error("User not found.");
+            err.statusCode = 404;
+            throw err;
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Profile picture updated successfully.",
+            user: {
+                userId: user._id,
+                name: user.name,
+                email: user.email,
+                age: user.age,
+                livingSituation: user.livingSituation,
+                profilePicture: user.profilePicture,
+            }
+        });
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+
+
+
+// DELETE ACCOUNT CONTROLLER
+const deleteAccountController = async (req, res, next) => {
+    try {
+
+        const userId = req.user?.id;
+        if (!userId) {
+            const err = new Error("Unauthorized.");
+            err.statusCode = 401;
+            throw err;
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            const err = new Error("User not found.");
+            err.statusCode = 404;
+            throw err;
+        }
+
+        await Assessment.deleteMany({ userId });
+        await Otp.deleteMany({ email: user.email });
+        await User.findByIdAndDelete(userId);
+
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            secure: ENV.NODE_ENV === "production",
+            sameSite: "strict"
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: "Account deleted successfully."
+        });
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+
+
+// FORGOT PASSWORD CONTROLLER
+const forgotPasswordController = async (req, res, next) => {
+    try {
+
+        const parsed = z.object({ email: z.string().email() }).safeParse(req.body);
+        if (!parsed.success) return next(parsed.error);
+
+        const { email } = parsed.data;
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            const err = new Error("No account found with this email.");
+            err.statusCode = 404;
+            throw err;
+        }
+
+        // Check spam — no new OTP if a valid one was sent in last 1 minute
+        const recentOtp = await Otp.findOne({
+            email,
+            purpose: "reset-password",
+            expiresAt: { $gt: new Date() },
+            consumedAt: null,
+            createdAt: { $gte: new Date(Date.now() - 60 * 1000) }
+        });
+
+        if (recentOtp) {
+            const err = new Error("OTP already sent. Please wait 1 minute before requesting again.");
+            err.statusCode = 429;
+            throw err;
+        }
+
+        const otp = generateOtp();
+        const otpHash = await hashOtp(otp);
+        const otpExpiresMinutes = 10;
+        const otpExpiresAt = new Date(Date.now() + otpExpiresMinutes * 60 * 1000);
+
+        await Otp.deleteMany({
+            email,
+            purpose: "reset-password",
+            $or: [
+                { expiresAt: { $lt: new Date() } },
+                { consumedAt: { $ne: null } }
+            ]
+        });
+
+        await Otp.create({ email, otpHash, purpose: "reset-password", expiresAt: otpExpiresAt });
+
+        await sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes });
+
+        return res.status(200).json({
+            success: true,
+            message: "OTP sent to your email for password reset."
+        });
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+
+
+// RESET PASSWORD CONTROLLER
+const resetPasswordController = async (req, res, next) => {
+    try {
+
+        const parsed = resetPasswordSchema.safeParse(req.body);
+        if (!parsed.success) return next(parsed.error);
+
+        const { email, otp, newPassword } = parsed.data;
+
+        const otpDoc = await Otp.findOne({ email, purpose: "reset-password" })
+            .sort({ createdAt: -1 })
+            .exec();
+
+        if (!otpDoc) {
+            const err = new Error("OTP not found. Please request a new OTP.");
+            err.statusCode = 404;
+            throw err;
+        }
+
+        if (otpDoc.consumedAt) {
+            const err = new Error("OTP already used. Please request a new OTP.");
+            err.statusCode = 400;
+            throw err;
+        }
+
+        if (otpDoc.expiresAt < new Date()) {
+            const err = new Error("OTP expired. Please request a new OTP.");
+            err.statusCode = 400;
+            throw err;
+        }
+
+        if (otpDoc.attempts >= 5) {
+            const err = new Error("Too many invalid attempts. Please request a new OTP.");
+            err.statusCode = 429;
+            throw err;
+        }
+
+        const isValid = await verifyOtp(otp, otpDoc.otpHash);
+        if (!isValid) {
+            otpDoc.attempts += 1;
+            await otpDoc.save();
+            const remaining = 5 - otpDoc.attempts;
+            const err = new Error(`Invalid OTP. ${remaining} attempt(s) remaining.`);
+            err.statusCode = 400;
+            throw err;
+        }
+
+        otpDoc.consumedAt = new Date();
+        await otpDoc.save();
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await User.findOneAndUpdate({ email }, { password: hashedPassword });
+
+        return res.status(200).json({
+            success: true,
+            message: "Password reset successfully. You can now login."
+        });
+
+    } catch (err) {
+        next(err);
+    }
+};
+
+
 
 export {
     registerController,
@@ -450,5 +680,9 @@ export {
     resendOtpController,
     loginController,
     logoutController,
-    updateProfileController
+    updateProfileController,
+    uploadAvatarController,
+    deleteAccountController,
+    forgotPasswordController,
+    resetPasswordController,
 }

@@ -33,6 +33,14 @@ export const otpSchema = z.object({
 });
 
 
+// RESET PASSWORD SCHEMA
+export const resetPasswordSchema = z.object({
+    email: z.string().email(),
+    otp: z.string().trim().regex(/^\d{6}$/),
+    newPassword: z.string().min(6),
+});
+
+
 // PROFILE UPDATE SCHEMA
 export const profileUpdateSchema = z.object({
     name: z.string().trim().min(1).optional(),
