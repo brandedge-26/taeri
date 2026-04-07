@@ -61,7 +61,7 @@ export default function TaskSelectionScreen() {
     <SafeAreaView className="flex-1 bg-background">
       {/* Header */}
       <View className="bg-primary px-6 pt-6 pb-12 rounded-b-[40px]" style={styles.heroShadow}>
-        <Text className="font-osmd text-white/70 text-sm mb-1">Step 1 of 5</Text>
+        <Text className="font-osmd text-white/70 text-sm mb-1">Step 1 of 6</Text>
         <Text className="font-osbd text-white text-2xl">Select a Task</Text>
         <Text className="font-osmd text-white/70 text-sm mt-1">Which household task did you do?</Text>
       </View>

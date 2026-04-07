@@ -249,7 +249,7 @@ export default function AnalyticsScreen() {
             <View style={{ flex: 1, paddingLeft: 20, gap: 12 }}>
               {([
                 { label: 'Low Risk', count: greenList.length, color: '#10B981' },
-                { label: 'Medium Risk', count: yellowList.length, color: '#F59E0B' },
+                { label: 'Moderate Risk', count: yellowList.length, color: '#F59E0B' },
                 { label: 'High Risk', count: redList.length, color: '#EF4444' },
               ] as const).map((item) => {
                 const pct = all.length > 0 ? Math.round((item.count / all.length) * 100) : 0;
@@ -298,7 +298,7 @@ export default function AnalyticsScreen() {
                   width={barChartInnerW}
                   height={220}
                   noOfSections={4}
-                  maxValue={12}
+                  maxValue={30}
                   areaChart
                   startFillColor="#2563EB"
                   startOpacity={0.15}
@@ -325,7 +325,7 @@ export default function AnalyticsScreen() {
               </View>
 
               <View style={{ flexDirection: 'row', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
-                {([['#10B981', '< 1.6 Low'], ['#F59E0B', '1.6–5 Medium'], ['#EF4444', '> 5.0 High']] as const).map(([color, lbl]) => (
+                {([['#10B981', '< 1.6 Low'], ['#F59E0B', '1.6–5 Moderate'], ['#EF4444', '> 5.0 High']] as const).map(([color, lbl]) => (
                   <View key={lbl} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                     <View style={{ width: 14, height: 2.5, backgroundColor: color, borderRadius: 2 }} />
                     <Text style={{ fontFamily: 'OSans-Regular', fontSize: 10, color: '#94A3B8' }}>{lbl}</Text>

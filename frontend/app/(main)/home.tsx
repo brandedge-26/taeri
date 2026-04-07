@@ -234,7 +234,7 @@ export default function HomeScreen() {
                 <View style={{ flex: 1, paddingLeft: 16, gap: 8 }}>
                   {([
                     { label: 'Low Risk', count: greenCount, color: '#10B981' },
-                    { label: 'Medium Risk', count: yellowCount, color: '#F59E0B' },
+                    { label: 'Moderate Risk', count: yellowCount, color: '#F59E0B' },
                     { label: 'High Risk', count: redCount, color: '#EF4444' },
                   ] as const).map((item) => {
                     const pct = allAssessments.length > 0

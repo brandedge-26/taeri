@@ -10,10 +10,10 @@ import { useAssessmentStore } from '../../store/assessmentStore';
 type FilterTab = 'all' | RiskLevel;
 
 const TABS: { key: FilterTab; label: string; icon: string; color: string; bg: string }[] = [
-  { key: 'all',    label: 'All',    icon: 'list-outline',         color: '#2563EB', bg: '#EFF6FF' },
-  { key: 'green',  label: 'Low',    icon: 'checkmark-circle',     color: '#10B981', bg: '#D1FAE5' },
-  { key: 'yellow', label: 'Medium', icon: 'warning',              color: '#F59E0B', bg: '#FEF3C7' },
-  { key: 'red',    label: 'High',   icon: 'alert-circle',         color: '#EF4444', bg: '#FEE2E2' },
+  { key: 'all', label: 'All', icon: 'list-outline', color: '#2563EB', bg: '#EFF6FF' },
+  { key: 'green', label: 'Low', icon: 'checkmark-circle', color: '#10B981', bg: '#D1FAE5' },
+  { key: 'yellow', label: 'Moderate', icon: 'warning', color: '#F59E0B', bg: '#FEF3C7' },
+  { key: 'red', label: 'High', icon: 'alert-circle', color: '#EF4444', bg: '#FEE2E2' },
 ];
 
 function formatDate(iso: string): string {
@@ -38,10 +38,10 @@ export default function HistoryScreen() {
     : assessments.filter((a) => a.riskLevel === activeFilter);
 
   const counts = {
-    all:    assessments.length,
-    green:  assessments.filter((a) => a.riskLevel === 'green').length,
+    all: assessments.length,
+    green: assessments.filter((a) => a.riskLevel === 'green').length,
     yellow: assessments.filter((a) => a.riskLevel === 'yellow').length,
-    red:    assessments.filter((a) => a.riskLevel === 'red').length,
+    red: assessments.filter((a) => a.riskLevel === 'red').length,
   };
 
   async function handleDeleteAll() {
@@ -165,9 +165,17 @@ export default function HistoryScreen() {
                     taskName: a.taskName,
                     frequency: a.frequency,
                     duration: a.duration,
+                    physicalDemand: String(a.physicalDemand),
+                    complexity: String(a.complexity),
                     psychological: String(a.psychological),
+                    neck: String(a.neck),
+                    arm: String(a.arm),
+                    wrist: String(a.wrist),
+                    back: String(a.back),
+                    leg: String(a.leg),
                     posture: String(a.posture),
                     handling: String(a.handling),
+                    stability: a.stability,
                     rawScore: String(a.rawScore),
                     adjustmentFactor: String(a.adjustmentFactor),
                     finalScore: String(a.finalScore),
@@ -213,12 +221,12 @@ export default function HistoryScreen() {
 
                     <View className="flex-row gap-4 mt-2">
                       {[
-                        { label: 'Psych', value: a.psychological },
-                        { label: 'Posture', value: a.posture },
-                        { label: 'Handling', value: a.handling },
+                        { label: 'Psych', value: a.psychological, max: 6 },
+                        { label: 'Posture', value: a.posture, max: 15 },
+                        { label: 'Handling', value: a.handling, max: 3 },
                       ].map((s) => (
                         <View key={s.label} className="items-center">
-                          <Text className="font-osbd text-text text-sm">{s.value}/3</Text>
+                          <Text className="font-osbd text-text text-sm">{s.value}/{s.max}</Text>
                           <Text className="font-osmd text-text-muted text-xs">{s.label}</Text>
                         </View>
                       ))}

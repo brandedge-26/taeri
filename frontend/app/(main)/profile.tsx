@@ -93,7 +93,7 @@ export default function ProfileScreen() {
   const statItems: { label: string; value: number; level: RiskLevel | null }[] = [
     { label: 'Total Assessments', value: totalCount, level: null },
     { label: 'Low Risk', value: riskCounts.green, level: 'green' },
-    { label: 'Medium Risk', value: riskCounts.yellow, level: 'yellow' },
+    { label: 'Moderate Risk', value: riskCounts.yellow, level: 'yellow' },
     { label: 'High Risk', value: riskCounts.red, level: 'red' },
   ];
 

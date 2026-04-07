@@ -1,38 +1,36 @@
-import type { DurationCategory, FrequencyCategory } from '@/types/assessment';
-import { calculateFinalScore } from '@/utils/taerScoring';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const OPTIONS = [
+const HANDLING_OPTIONS = [
   {
     score: 1 as const,
     label: 'Light',
     description: 'No heavy lifting. Items are lightweight or handled easily.',
+    weightLabel: '< 1 kg',
     icon: 'cube-outline',
     color: '#10B981',
     bg: '#D1FAE5',
-    example: 'e.g. Folding clothes, light grocery bag',
   },
   {
     score: 2 as const,
     label: 'Moderate',
     description: 'Handling items of medium weight. Some effort required when moving or carrying.',
+    weightLabel: '1 – 5 kg',
     icon: 'barbell-outline',
     color: '#F59E0B',
     bg: '#FEF3C7',
-    example: 'e.g. Carrying shopping bags, vacuum cleaner',
   },
   {
     score: 3 as const,
     label: 'Heavy',
     description: 'Heavy lifting, carrying, or pushing. Significant physical effort required.',
+    weightLabel: '> 5 kg',
     icon: 'warning-outline',
     color: '#EF4444',
     bg: '#FEE2E2',
-    example: 'e.g. Moving furniture, heavy boxes, full laundry basket',
   },
 ];
 
@@ -43,37 +41,22 @@ export default function Step3Screen() {
     taskName: string;
     frequency: string;
     duration: string;
-    psychological: string;
-    posture: string;
+    physicalDemand: string;
+    complexity: string;
+    neck: string;
+    arm: string;
+    wrist: string;
+    back: string;
+    leg: string;
   }>();
 
   const [selected, setSelected] = useState<1 | 2 | 3 | null>(null);
 
-  function handleCalculate() {
+  function handleNext() {
     if (!selected) return;
-
-    const psychological = parseInt(params.psychological) as 1 | 2 | 3;
-    const posture = parseInt(params.posture) as 1 | 2 | 3;
-    const handling = selected;
-
-    const result = calculateFinalScore(
-      psychological,
-      posture,
-      handling,
-      params.duration as DurationCategory,
-      params.frequency as FrequencyCategory,
-    );
-
     router.push({
-      pathname: '/(main)/assess/result',
-      params: {
-        ...params,
-        handling: String(handling),
-        rawScore: String(result.rawScore),
-        adjustmentFactor: String(result.adjustmentFactor),
-        finalScore: String(result.finalScore),
-        riskLevel: result.riskLevel,
-      },
+      pathname: '/(main)/assess/step4',
+      params: { ...params, handling: String(selected) },
     });
   }
 
@@ -85,8 +68,8 @@ export default function Step3Screen() {
           <Ionicons name="arrow-back" size={18} color="rgba(255,255,255,0.8)" />
           <Text className="font-osmd text-white/80 text-sm">Back</Text>
         </TouchableOpacity>
-        <Text className="font-osmd text-white/70 text-sm font-medium mb-1">Step 5 of 5 — Manual Handling</Text>
-        <Text className="font-osbd text-white text-2xl ">{params.taskName}</Text>
+        <Text className="font-osmd text-white/70 text-sm font-medium mb-1">Step 5 of 6 — Manual Handling</Text>
+        <Text className="font-osbd text-white text-2xl">{params.taskName}</Text>
         <Text className="font-osmd text-white/70 text-sm mt-1">How heavy was the manual handling?</Text>
       </View>
 
@@ -101,17 +84,16 @@ export default function Step3Screen() {
           ))}
         </View>
 
-        <Text className="font-osbd text-text  text-lg text-center mb-2">
-          Select manual handling difficulty
+        <Text className="font-osmd text-text-secondary text-sm text-center mb-1">
+          Lifting/lowering, pushing/pulling and carrying
         </Text>
 
-        {OPTIONS.map((opt) => (
+        {HANDLING_OPTIONS.map((opt) => (
           <TouchableOpacity
             key={opt.score}
             onPress={() => setSelected(opt.score)}
             activeOpacity={0.82}
-            className={`rounded-2xl p-4 border-2 ${selected === opt.score ? 'border-primary bg-primary-50' : 'border-border bg-white'
-              }`}
+            className={`rounded-2xl p-4 border-2 ${selected === opt.score ? 'border-primary bg-primary-50' : 'border-border bg-white'}`}
             style={styles.optionCard}
           >
             <View className="flex-row items-center gap-3 mb-2">
@@ -120,9 +102,9 @@ export default function Step3Screen() {
               </View>
               <View className="flex-1">
                 <View className="flex-row items-center gap-2">
-                  <Text className="font-osbd text-text  text-base">{opt.label}</Text>
+                  <Text className="font-osbd text-text text-base">{opt.label}</Text>
                   <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: opt.bg }}>
-                    <Text className="font-osbd text-xs " style={{ color: opt.color }}>{opt.score}/3</Text>
+                    <Text className="font-osbd text-xs" style={{ color: opt.color }}>{opt.weightLabel}</Text>
                   </View>
                 </View>
               </View>
@@ -131,20 +113,18 @@ export default function Step3Screen() {
               )}
             </View>
             <Text className="font-osmd text-text-secondary text-sm">{opt.description}</Text>
-            <Text className="font-osmd text-text-muted text-xs mt-1">{opt.example}</Text>
           </TouchableOpacity>
         ))}
 
         <TouchableOpacity
-          onPress={handleCalculate}
+          onPress={handleNext}
           disabled={!selected}
           activeOpacity={0.86}
-          className={`rounded-2xl py-4 items-center flex-row justify-center gap-2 ${selected ? 'bg-primary' : 'bg-primary-300'
-            }`}
+          className={`rounded-2xl py-4 items-center flex-row justify-center gap-2 ${selected ? 'bg-primary' : 'bg-primary-300'}`}
           style={selected ? styles.btnShadow : undefined}
         >
-          <Ionicons name="calculator-outline" size={20} color="#fff" />
-          <Text className="font-osbd text-white  text-lg">Calculate Risk Score</Text>
+          <Text className="font-osbd text-white text-lg">Continue</Text>
+          <Ionicons name="arrow-forward" size={20} color="#fff" />
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

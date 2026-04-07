@@ -4,31 +4,16 @@ import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const OPTIONS = [
-  {
-    score: 1 as const,
-    label: 'Easy',
-    description: 'Task felt simple and comfortable. No effort or struggle.',
-    icon: 'happy-outline',
-    color: '#10B981',
-    bg: '#D1FAE5',
-  },
-  {
-    score: 2 as const,
-    label: 'Medium',
-    description: 'Task required some effort. Felt a bit tiring or challenging.',
-    icon: 'remove-circle-outline',
-    color: '#F59E0B',
-    bg: '#FEF3C7',
-  },
-  {
-    score: 3 as const,
-    label: 'Hard',
-    description: 'Task was difficult or exhausting. Required significant effort.',
-    icon: 'sad-outline',
-    color: '#EF4444',
-    bg: '#FEE2E2',
-  },
+const PHYSICAL_DEMAND_OPTIONS = [
+  { score: 1 as const, label: 'None/Minor', color: '#10B981', bg: '#D1FAE5' },
+  { score: 2 as const, label: 'Moderate',   color: '#F59E0B', bg: '#FEF3C7' },
+  { score: 3 as const, label: 'Too much',   color: '#EF4444', bg: '#FEE2E2' },
+];
+
+const COMPLEXITY_OPTIONS = [
+  { score: 1 as const, label: 'Not at all/Slight', color: '#10B981', bg: '#D1FAE5' },
+  { score: 2 as const, label: 'Moderate',          color: '#F59E0B', bg: '#FEF3C7' },
+  { score: 3 as const, label: 'Extreme',            color: '#EF4444', bg: '#FEE2E2' },
 ];
 
 export default function Step1Screen() {
@@ -40,13 +25,22 @@ export default function Step1Screen() {
     duration: string;
   }>();
 
-  const [selected, setSelected] = useState<1 | 2 | 3 | null>(null);
+  const [open, setOpen] = useState(true);
+  const [physicalDemand, setPhysicalDemand] = useState<1 | 2 | 3 | null>(null);
+  const [complexity, setComplexity] = useState<1 | 2 | 3 | null>(null);
+
+  const score = (physicalDemand ?? 0) + (complexity ?? 0);
+  const canContinue = physicalDemand !== null && complexity !== null;
 
   function handleNext() {
-    if (!selected) return;
+    if (!canContinue) return;
     router.push({
       pathname: '/(main)/assess/step2',
-      params: { ...params, psychological: String(selected) },
+      params: {
+        ...params,
+        physicalDemand: String(physicalDemand),
+        complexity: String(complexity),
+      },
     });
   }
 
@@ -58,14 +52,14 @@ export default function Step1Screen() {
           <Ionicons name="arrow-back" size={18} color="rgba(255,255,255,0.8)" />
           <Text className="font-osmd text-white/80 text-sm">Back</Text>
         </TouchableOpacity>
-        <Text className="font-osmd text-white/70 text-sm font-medium mb-1">Step 3 of 5 — Psychological</Text>
-        <Text className="font-osbd text-white text-2xl font-osbd">{params.taskName}</Text>
-        <Text className="font-osmd text-white/70 text-sm mt-1">How hard did this task feel?</Text>
+        <Text className="font-osmd text-white/70 text-sm font-medium mb-1">Step 3 of 6 — Psychological</Text>
+        <Text className="font-osbd text-white text-2xl">{params.taskName}</Text>
+        <Text className="font-osmd text-white/70 text-sm mt-1">Rate your psychological perception</Text>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 40, gap: 12 }}
+        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 40, gap: 14 }}
       >
         {/* Progress dots */}
         <View className="flex-row justify-center gap-2 mb-2">
@@ -74,46 +68,144 @@ export default function Step1Screen() {
           ))}
         </View>
 
-        <Text className="font-osbd text-text font-osbd text-lg text-center mb-2">
-          Rate your psychological perception
-        </Text>
+        {/* Accordion Section */}
+        <View className="bg-white rounded-2xl overflow-hidden" style={styles.sectionCard}>
 
-        {OPTIONS.map((opt) => (
+          {/* Accordion Header */}
           <TouchableOpacity
-            key={opt.score}
-            onPress={() => setSelected(opt.score)}
-            activeOpacity={0.82}
-            className={`rounded-2xl p-5 flex-row items-center gap-4 border-2 ${selected === opt.score ? 'border-primary bg-primary-50' : 'border-border bg-white'
-              }`}
-            style={styles.optionCard}
+            onPress={() => setOpen((v) => !v)}
+            activeOpacity={0.8}
+            className="flex-row items-center justify-between px-4 py-4 border-b border-border"
           >
-            <View className="w-14 h-14 rounded-2xl items-center justify-center" style={{ backgroundColor: opt.bg }}>
-              <Ionicons name={opt.icon as any} size={30} color={opt.color} />
+            <View className="flex-row items-center gap-3">
+              <View className="w-9 h-9 rounded-xl bg-primary-50 items-center justify-center">
+                <Ionicons name="analytics-outline" size={20} color="#2563EB" />
+              </View>
+              <Text className="font-osbd text-text text-base">Psychological Perceptions</Text>
             </View>
-            <View className="flex-1">
-              <View className="flex-row items-center gap-2">
-                <Text className="font-osbd text-text font-osbd text-lg">{opt.label}</Text>
-                <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: opt.bg }}>
-                  <Text className="font-osbd text-xs font-osbd" style={{ color: opt.color }}>{opt.score}/3</Text>
+            <View className="flex-row items-center gap-2">
+              {score > 0 && (
+                <View className="bg-primary-50 px-2.5 py-1 rounded-full">
+                  <Text className="font-osbd text-primary text-xs">{score}/6</Text>
+                </View>
+              )}
+              <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#64748B" />
+            </View>
+          </TouchableOpacity>
+
+          {open && (
+            <View className="px-4 py-4 gap-5">
+
+              {/* Sub-section 1 */}
+              <View>
+                <Text className="font-osbd text-text text-sm mb-1">Perceived physical demand required</Text>
+                <Text className="font-osmd text-text-secondary text-xs mb-3">
+                  How much physical effort does this task demand?
+                </Text>
+                <View className="flex-row gap-2">
+                  {PHYSICAL_DEMAND_OPTIONS.map((opt) => {
+                    const selected = physicalDemand === opt.score;
+                    return (
+                      <TouchableOpacity
+                        key={opt.score}
+                        onPress={() => setPhysicalDemand(opt.score)}
+                        activeOpacity={0.82}
+                        className="flex-1 rounded-xl p-3 items-center border-2"
+                        style={[
+                          styles.optChip,
+                          {
+                            borderColor: selected ? opt.color : '#E2E8F0',
+                            backgroundColor: selected ? opt.bg : '#F8FAFC',
+                          },
+                        ]}
+                      >
+                        <View
+                          className="w-5 h-5 rounded-full border-2 items-center justify-center mb-2"
+                          style={{ borderColor: selected ? opt.color : '#CBD5E1' }}
+                        >
+                          {selected && (
+                            <View className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: opt.color }} />
+                          )}
+                        </View>
+                        <Text
+                          className="font-osbd text-center"
+                          style={{ fontSize: 11, color: selected ? opt.color : '#64748B' }}
+                          numberOfLines={2}
+                        >
+                          {opt.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
               </View>
-              <Text className="font-osmd text-text-secondary text-sm mt-1">{opt.description}</Text>
-            </View>
-            {selected === opt.score && (
-              <Ionicons name="checkmark-circle" size={24} color="#2563EB" />
-            )}
-          </TouchableOpacity>
-        ))}
 
+              {/* Divider */}
+              <View className="h-px bg-border" />
+
+              {/* Sub-section 2 */}
+              <View>
+                <Text className="font-osbd text-text text-sm mb-1">Perceived complexity</Text>
+                <Text className="font-osmd text-text-secondary text-xs mb-3">
+                  How complex or mentally demanding is this task?
+                </Text>
+                <View className="flex-row gap-2">
+                  {COMPLEXITY_OPTIONS.map((opt) => {
+                    const selected = complexity === opt.score;
+                    return (
+                      <TouchableOpacity
+                        key={opt.score}
+                        onPress={() => setComplexity(opt.score)}
+                        activeOpacity={0.82}
+                        className="flex-1 rounded-xl p-3 items-center border-2"
+                        style={[
+                          styles.optChip,
+                          {
+                            borderColor: selected ? opt.color : '#E2E8F0',
+                            backgroundColor: selected ? opt.bg : '#F8FAFC',
+                          },
+                        ]}
+                      >
+                        <View
+                          className="w-5 h-5 rounded-full border-2 items-center justify-center mb-2"
+                          style={{ borderColor: selected ? opt.color : '#CBD5E1' }}
+                        >
+                          {selected && (
+                            <View className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: opt.color }} />
+                          )}
+                        </View>
+                        <Text
+                          className="font-osbd text-center"
+                          style={{ fontSize: 11, color: selected ? opt.color : '#64748B' }}
+                          numberOfLines={2}
+                        >
+                          {opt.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Total badge */}
+              <View className="flex-row items-center justify-between bg-primary-50 rounded-xl px-4 py-3">
+                <Text className="font-osmd text-text-secondary text-sm">Total Psychological Score</Text>
+                <Text className="font-osbd text-primary text-base">{score}/6</Text>
+              </View>
+
+            </View>
+          )}
+        </View>
+
+        {/* Continue */}
         <TouchableOpacity
           onPress={handleNext}
-          disabled={!selected}
+          disabled={!canContinue}
           activeOpacity={0.86}
-          className={`rounded-2xl py-4 items-center flex-row justify-center gap-2 ${selected ? 'bg-primary' : 'bg-primary-300'
-            }`}
-          style={selected ? styles.btnShadow : undefined}
+          className={`rounded-2xl py-4 items-center flex-row justify-center gap-2 ${canContinue ? 'bg-primary' : 'bg-primary-300'}`}
+          style={canContinue ? styles.btnShadow : undefined}
         >
-          <Text className="font-osbd text-white font-osbd text-lg">Continue</Text>
+          <Text className="font-osbd text-white text-lg">Continue</Text>
           <Ionicons name="arrow-forward" size={20} color="#fff" />
         </TouchableOpacity>
       </ScrollView>
@@ -129,12 +221,19 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
   },
-  optionCard: {
+  sectionCard: {
     shadowColor: '#2563EB',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  optChip: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
   },
   btnShadow: {
     shadowColor: '#2563EB',

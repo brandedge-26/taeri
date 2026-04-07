@@ -39,21 +39,24 @@ const assessmentSchema = new mongoose.Schema(
             required: true,
         },
 
-        psychological: {
-            type: Number,
-            enum: [1, 2, 3],
-            required: true,
-        },
+        // Psychological sub-scores
+        physicalDemand: { type: Number, enum: [1, 2, 3], required: true },
+        complexity: { type: Number, enum: [1, 2, 3], required: true },
+        psychological: { type: Number, required: true }, // sum: 2–6
 
-        posture: {
-            type: Number,
-            enum: [1, 2, 3],
-            required: true,
-        },
+        // Posture sub-scores
+        neck: { type: Number, enum: [1, 2, 3], required: true },
+        arm: { type: Number, enum: [1, 2, 3], required: true },
+        wrist: { type: Number, enum: [1, 2, 3], required: true },
+        back: { type: Number, enum: [1, 2, 3], required: true },
+        leg: { type: Number, enum: [1, 2, 3], required: true },
+        posture: { type: Number, required: true }, // sum: 5–15
 
-        handling: {
-            type: Number,
-            enum: [1, 2, 3],
+        handling: { type: Number, enum: [1, 2, 3], required: true },
+
+        stability: {
+            type: String,
+            enum: ['very_stable', 'somewhat_unsteady', 'very_unsteady'],
             required: true,
         },
 

@@ -45,7 +45,7 @@ export default function TaskDetailsScreen() {
           <Ionicons name="arrow-back" size={18} color="rgba(255,255,255,0.8)" />
           <Text className="font-osmd text-white/80 text-sm">Back</Text>
         </TouchableOpacity>
-        <Text className="font-osmd text-white/70 text-sm font-medium mb-1">Step 2 of 5</Text>
+        <Text className="font-osmd text-white/70 text-sm font-medium mb-1">Step 2 of 6</Text>
         <Text className="font-osbd text-white text-2xl">{taskName}</Text>
         <Text className="font-osmd text-white/70 text-sm mt-1">How often and how long did you do it?</Text>
       </View>

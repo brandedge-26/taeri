@@ -1,4 +1,4 @@
-import type { Assessment, DurationCategory, FrequencyCategory, RiskLevel } from '@/types/assessment';
+import type { Assessment, DurationCategory, FrequencyCategory, RiskLevel, StabilityLevel } from '@/types/assessment';
 import axios from 'axios';
 import { create } from 'zustand';
 import { useAuthStore } from './authStore';
@@ -42,9 +42,17 @@ function mapAssessment(raw: any): Assessment {
     date: typeof raw.date === 'string' ? raw.date : new Date(raw.date).toISOString(),
     frequency: raw.frequency as FrequencyCategory,
     duration: raw.duration as DurationCategory,
-    psychological: raw.psychological as 1 | 2 | 3,
-    posture: raw.posture as 1 | 2 | 3,
+    physicalDemand: raw.physicalDemand as 1 | 2 | 3,
+    complexity: raw.complexity as 1 | 2 | 3,
+    psychological: raw.psychological,
+    neck: raw.neck as 1 | 2 | 3,
+    arm: raw.arm as 1 | 2 | 3,
+    wrist: raw.wrist as 1 | 2 | 3,
+    back: raw.back as 1 | 2 | 3,
+    leg: raw.leg as 1 | 2 | 3,
+    posture: raw.posture,
     handling: raw.handling as 1 | 2 | 3,
+    stability: raw.stability as StabilityLevel,
     rawScore: raw.rawScore,
     adjustmentFactor: raw.adjustmentFactor,
     finalScore: raw.finalScore,

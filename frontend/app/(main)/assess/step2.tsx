@@ -1,38 +1,96 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const OPTIONS = [
+// ── Image map (static requires) ───────────────────────────────────────────────
+const POSTURE_IMAGES = {
+  // Neck
+  neck1: require('../../../assets/images/postures/img1.png'),
+  neck2: require('../../../assets/images/postures/img2.png'),
+  neck3: require('../../../assets/images/postures/img3.png'),
+  // Arm
+  arm1: require('../../../assets/images/postures/img4.png'),
+  arm2: require('../../../assets/images/postures/img5.png'),
+  arm3: require('../../../assets/images/postures/img11.png'),
+  // Wrist
+  wrist1: require('../../../assets/images/postures/img6.png'),
+  wrist2: require('../../../assets/images/postures/img7.png'),
+  wrist3: require('../../../assets/images/postures/img8.png'),
+  // Back
+  back1: require('../../../assets/images/postures/img12.png'),
+  back2: require('../../../assets/images/postures/img13.png'),
+  back3: require('../../../assets/images/postures/img14.png'),
+  // Leg
+  leg1: require('../../../assets/images/postures/img9.png'),
+  leg2: require('../../../assets/images/postures/img10.png'),
+  leg3: require('../../../assets/images/postures/img10.png'), // reused — no separate img
+};
+
+type Score = 1 | 2 | 3;
+
+interface BodyPart {
+  key: 'neck' | 'arm' | 'wrist' | 'back' | 'leg';
+  label: string;
+  options: { score: Score; label: string; imageKey: keyof typeof POSTURE_IMAGES }[];
+}
+
+const BODY_PARTS: BodyPart[] = [
   {
-    score: 1 as const,
-    label: 'Comfortable',
-    description: 'Neutral position. Standing or sitting upright. No bending, reaching, or twisting.',
-    icon: 'body-outline',
-    color: '#10B981',
-    bg: '#D1FAE5',
-    example: 'e.g. Washing hands at sink level',
+    key: 'neck',
+    label: 'Neck',
+    options: [
+      { score: 1, label: '0–10°',  imageKey: 'neck1' },
+      { score: 2, label: '10–20°', imageKey: 'neck2' },
+      { score: 3, label: '>20°',   imageKey: 'neck3' },
+    ],
   },
   {
-    score: 2 as const,
-    label: 'Moderate',
-    description: 'Some bending, reaching overhead, or mild twisting of the back or neck.',
-    icon: 'fitness-outline',
-    color: '#F59E0B',
-    bg: '#FEF3C7',
-    example: 'e.g. Hanging laundry, stirring in a pot',
+    key: 'arm',
+    label: 'Arm',
+    options: [
+      { score: 1, label: '0–20°',  imageKey: 'arm1' },
+      { score: 2, label: '20–45°', imageKey: 'arm2' },
+      { score: 3, label: '>45°',   imageKey: 'arm3' },
+    ],
   },
   {
-    score: 3 as const,
-    label: 'Difficult',
-    description: 'Heavy bending, kneeling, crouching, or extreme twisting. Awkward or sustained posture.',
-    icon: 'alert-circle-outline',
-    color: '#EF4444',
-    bg: '#FEE2E2',
-    example: 'e.g. Scrubbing floors, lifting from low shelves',
+    key: 'wrist',
+    label: 'Wrist',
+    options: [
+      { score: 1, label: 'Neutral',  imageKey: 'wrist1' },
+      { score: 2, label: '0–15°',    imageKey: 'wrist2' },
+      { score: 3, label: '>15°',     imageKey: 'wrist3' },
+    ],
+  },
+  {
+    key: 'back',
+    label: 'Back',
+    options: [
+      { score: 1, label: '0–20°',  imageKey: 'back1' },
+      { score: 2, label: '20–60°', imageKey: 'back2' },
+      { score: 3, label: '>60°',   imageKey: 'back3' },
+    ],
+  },
+  {
+    key: 'leg',
+    label: 'Leg',
+    options: [
+      { score: 1, label: 'Both Straight\nor Sitting', imageKey: 'leg1' },
+      { score: 2, label: 'One/Both\nBent',            imageKey: 'leg2' },
+      { score: 3, label: 'Unsupported\n>30°',         imageKey: 'leg3' },
+    ],
   },
 ];
+
+type PostureState = {
+  neck: Score | null;
+  arm: Score | null;
+  wrist: Score | null;
+  back: Score | null;
+  leg: Score | null;
+};
 
 export default function Step2Screen() {
   const router = useRouter();
@@ -41,16 +99,36 @@ export default function Step2Screen() {
     taskName: string;
     frequency: string;
     duration: string;
-    psychological: string;
+    physicalDemand: string;
+    complexity: string;
   }>();
 
-  const [selected, setSelected] = useState<1 | 2 | 3 | null>(null);
+  const [open, setOpen] = useState(true);
+  const [selections, setSelections] = useState<PostureState>({
+    neck: null, arm: null, wrist: null, back: null, leg: null,
+  });
+
+  const score = (Object.values(selections) as (Score | null)[])
+    .reduce((sum, v) => sum + (v ?? 0), 0);
+
+  const canContinue = Object.values(selections).every((v) => v !== null);
+
+  function select(key: keyof PostureState, score: Score) {
+    setSelections((prev) => ({ ...prev, [key]: score }));
+  }
 
   function handleNext() {
-    if (!selected) return;
+    if (!canContinue) return;
     router.push({
       pathname: '/(main)/assess/step3',
-      params: { ...params, posture: String(selected) },
+      params: {
+        ...params,
+        neck: String(selections.neck),
+        arm: String(selections.arm),
+        wrist: String(selections.wrist),
+        back: String(selections.back),
+        leg: String(selections.leg),
+      },
     });
   }
 
@@ -62,14 +140,14 @@ export default function Step2Screen() {
           <Ionicons name="arrow-back" size={18} color="rgba(255,255,255,0.8)" />
           <Text className="font-osbd text-white/80 text-sm">Back</Text>
         </TouchableOpacity>
-        <Text className="font-osbd text-white/70 text-sm font-medium mb-1">Step 4 of 5 — Posture</Text>
+        <Text className="font-osbd text-white/70 text-sm font-medium mb-1">Step 4 of 6 — Posture</Text>
         <Text className="font-osbd text-white text-2xl">{params.taskName}</Text>
-        <Text className="font-osbd text-white/70 text-sm mt-1">What body position did you use?</Text>
+        <Text className="font-osmd text-white/70 text-sm mt-1">What body positions did you adopt?</Text>
       </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 40, gap: 12 }}
+        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 40, gap: 14 }}
       >
         {/* Progress dots */}
         <View className="flex-row justify-center gap-2 mb-2">
@@ -78,49 +156,117 @@ export default function Step2Screen() {
           ))}
         </View>
 
-        <Text className="font-osbd text-text text-lg text-center mb-2">
-          Select your body posture
-        </Text>
+        {/* Accordion Section */}
+        <View className="bg-white rounded-2xl overflow-hidden" style={styles.sectionCard}>
 
-        {OPTIONS.map((opt) => (
+          {/* Accordion Header */}
           <TouchableOpacity
-            key={opt.score}
-            onPress={() => setSelected(opt.score)}
-            activeOpacity={0.82}
-            className={`rounded-2xl p-4 border-2 ${selected === opt.score ? 'border-primary bg-primary-50' : 'border-border bg-white'
-              }`}
-            style={styles.optionCard}
+            onPress={() => setOpen((v) => !v)}
+            activeOpacity={0.8}
+            className="flex-row items-center justify-between px-4 py-4 border-b border-border"
           >
-            <View className="flex-row items-center gap-3 mb-2">
-              <View className="w-12 h-12 rounded-xl items-center justify-center" style={{ backgroundColor: opt.bg }}>
-                <Ionicons name={opt.icon as any} size={26} color={opt.color} />
+            <View className="flex-row items-center gap-3">
+              <View className="w-9 h-9 rounded-xl bg-primary-50 items-center justify-center">
+                <Ionicons name="body-outline" size={20} color="#2563EB" />
               </View>
-              <View className="flex-1">
-                <View className="flex-row items-center gap-2">
-                  <Text className="font-osbd text-text text-base">{opt.label}</Text>
-                  <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: opt.bg }}>
-                    <Text className="font-osbd text-xs" style={{ color: opt.color }}>{opt.score}/3</Text>
-                  </View>
-                </View>
-              </View>
-              {selected === opt.score && (
-                <Ionicons name="checkmark-circle" size={24} color="#2563EB" />
-              )}
+              <Text className="font-osbd text-text text-base">Postures Adopted</Text>
             </View>
-            <Text className="font-osbd text-text-secondary text-sm">{opt.description}</Text>
-            <Text className="font-osbd text-text-muted text-xs mt-1 italic">{opt.example}</Text>
+            <View className="flex-row items-center gap-2">
+              {score > 0 && (
+                <View className="bg-primary-50 px-2.5 py-1 rounded-full">
+                  <Text className="font-osbd text-primary text-xs">{score}/15</Text>
+                </View>
+              )}
+              <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#64748B" />
+            </View>
           </TouchableOpacity>
-        ))}
 
+          {open && (
+            <View className="px-4 py-4 gap-5">
+              {BODY_PARTS.map((part, partIdx) => {
+                const selected = selections[part.key];
+                return (
+                  <View key={part.key}>
+                    {partIdx > 0 && <View className="h-px bg-border mb-5" />}
+
+                    {/* Body part heading */}
+                    <View className="flex-row items-center justify-between mb-3">
+                      <Text className="font-osbd text-text text-sm">{part.label}</Text>
+                      {selected && (
+                        <View className="bg-primary-50 px-2 py-0.5 rounded-full">
+                          <Text className="font-osbd text-primary text-xs">{selected}/3</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    {/* 3-column image options */}
+                    <View className="flex-row gap-2">
+                      {part.options.map((opt) => {
+                        const isSelected = selected === opt.score;
+                        return (
+                          <TouchableOpacity
+                            key={opt.score}
+                            onPress={() => select(part.key, opt.score)}
+                            activeOpacity={0.82}
+                            className="flex-1 rounded-xl items-center pt-3 pb-2 border-2"
+                            style={[
+                              styles.imgCard,
+                              {
+                                borderColor: isSelected ? '#2563EB' : '#E2E8F0',
+                                backgroundColor: '#ffffff',
+                              },
+                            ]}
+                          >
+                              {/* Image in white box so its background blends cleanly */}
+                            <View style={styles.imgBox}>
+                              <Image
+                                source={POSTURE_IMAGES[opt.imageKey]}
+                                style={styles.postureImg}
+                                resizeMode="contain"
+                              />
+                            </View>
+                            <Text
+                              className="font-osbd text-center mt-2"
+                              style={{ fontSize: 10, color: isSelected ? '#2563EB' : '#64748B', lineHeight: 14 }}
+                              numberOfLines={2}
+                            >
+                              {opt.label}
+                            </Text>
+                            {/* Radio dot */}
+                            <View
+                              className="w-4 h-4 rounded-full border-2 items-center justify-center mt-1.5"
+                              style={{ borderColor: isSelected ? '#2563EB' : '#CBD5E1' }}
+                            >
+                              {isSelected && (
+                                <View className="w-2 h-2 rounded-full bg-primary" />
+                              )}
+                            </View>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  </View>
+                );
+              })}
+
+              {/* Total badge */}
+              <View className="flex-row items-center justify-between bg-primary-50 rounded-xl px-4 py-3 mt-1">
+                <Text className="font-osmd text-text-secondary text-sm">Total Adopted Posture Score</Text>
+                <Text className="font-osbd text-primary text-base">{score}/15</Text>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* Continue */}
         <TouchableOpacity
           onPress={handleNext}
-          disabled={!selected}
+          disabled={!canContinue}
           activeOpacity={0.86}
-          className={`rounded-2xl py-4 items-center flex-row justify-center gap-2 ${selected ? 'bg-primary' : 'bg-primary-300'
-            }`}
-          style={selected ? styles.btnShadow : undefined}
+          className={`rounded-2xl py-4 items-center flex-row justify-center gap-2 ${canContinue ? 'bg-primary' : 'bg-primary-300'}`}
+          style={canContinue ? styles.btnShadow : undefined}
         >
-          <Text className="font-osbd text-white  text-lg">Continue</Text>
+          <Text className="font-osbd text-white text-lg">Continue</Text>
           <Ionicons name="arrow-forward" size={20} color="#fff" />
         </TouchableOpacity>
       </ScrollView>
@@ -136,12 +282,31 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
   },
-  optionCard: {
+  sectionCard: {
     shadowColor: '#2563EB',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  imgCard: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  imgBox: {
+    width: 64,
+    height: 64,
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  postureImg: {
+    width: 58,
+    height: 58,
   },
   btnShadow: {
     shadowColor: '#2563EB',
