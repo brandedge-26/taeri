@@ -203,6 +203,9 @@ export default function Step2Screen() {
                     <View className="flex-row gap-2">
                       {part.options.map((opt) => {
                         const isSelected = selected === opt.score;
+                        const scoreColor  = opt.score === 1 ? '#10B981' : opt.score === 2 ? '#F59E0B' : '#EF4444';
+                        const scoreBg     = opt.score === 1 ? '#D1FAE5' : opt.score === 2 ? '#FEF3C7' : '#FEE2E2';
+                        const borderColor = isSelected ? scoreColor : '#E2E8F0';
                         return (
                           <TouchableOpacity
                             key={opt.score}
@@ -212,13 +215,13 @@ export default function Step2Screen() {
                             style={[
                               styles.imgCard,
                               {
-                                borderColor: isSelected ? '#2563EB' : '#E2E8F0',
-                                backgroundColor: '#ffffff',
+                                borderColor,
+                                backgroundColor: isSelected ? scoreBg : '#ffffff',
                               },
                             ]}
                           >
-                              {/* Image in white box so its background blends cleanly */}
-                            <View style={styles.imgBox}>
+                            {/* Image in white box so its background blends cleanly */}
+                            <View style={[styles.imgBox, { backgroundColor: isSelected ? scoreBg : '#ffffff' }]}>
                               <Image
                                 source={POSTURE_IMAGES[opt.imageKey]}
                                 style={styles.postureImg}
@@ -227,20 +230,11 @@ export default function Step2Screen() {
                             </View>
                             <Text
                               className="font-osbd text-center mt-2"
-                              style={{ fontSize: 10, color: isSelected ? '#2563EB' : '#64748B', lineHeight: 14 }}
+                              style={{ fontSize: 10, color: isSelected ? scoreColor : '#64748B', lineHeight: 14 }}
                               numberOfLines={2}
                             >
                               {opt.label}
                             </Text>
-                            {/* Radio dot */}
-                            <View
-                              className="w-4 h-4 rounded-full border-2 items-center justify-center mt-1.5"
-                              style={{ borderColor: isSelected ? '#2563EB' : '#CBD5E1' }}
-                            >
-                              {isSelected && (
-                                <View className="w-2 h-2 rounded-full bg-primary" />
-                              )}
-                            </View>
                           </TouchableOpacity>
                         );
                       })}
