@@ -5,7 +5,10 @@
       "Bash(node -e ':*)",
       "Bash(npm install:*)",
       "Bash(powershell:*)",
-      "Bash(ipconfig)"
+      "Bash(ipconfig)",
+      "Bash(python -c ':*)",
+      "Bash(pip install:*)",
+      "Bash(node -e \"console.log\\('node ok'\\)\")"
     ]
   }
 }

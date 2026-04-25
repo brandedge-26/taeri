@@ -102,6 +102,122 @@ function DetailRow({ label, value, score, max }: { label: string; value: string;
   );
 }
 
+// ── Summary Screen (shown first) ──────────────────────────────────────────────
+function SummaryScreen({
+  taskName,
+  finalScore,
+  riskLevel,
+  riskColor,
+  riskBg,
+  riskLabel,
+  riskIcon,
+  stability,
+  onBreakdown,
+  onHome,
+}: {
+  taskName: string;
+  finalScore: number;
+  riskLevel: RiskLevel;
+  riskColor: string;
+  riskBg: string;
+  riskLabel: string;
+  riskIcon: string;
+  stability: StabilityLevel;
+  onBreakdown: () => void;
+  onHome: () => void;
+}) {
+  const scaleAnim = useRef(new Animated.Value(0.5)).current;
+  const fadeAnim  = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, tension: 60, friction: 7 }),
+      Animated.timing(fadeAnim,  { toValue: 1, duration: 600, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  const bgColor =
+    riskLevel === 'green'  ? '#10B981' :
+    riskLevel === 'yellow' ? '#F59E0B' : '#EF4444';
+
+  const stabilityIcon =
+    stability === 'very_stable'       ? 'shield-checkmark-outline' :
+    stability === 'somewhat_unsteady' ? 'alert-outline' : 'warning-outline';
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
+      <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
+
+        {/* Top section — icon + label */}
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
+
+          {/* Icon circle */}
+          <Animated.View
+            style={[
+              styles.summaryIconCircle,
+              { transform: [{ scale: scaleAnim }] },
+            ]}
+          >
+            <Ionicons name={riskIcon as any} size={64} color={bgColor} />
+          </Animated.View>
+
+          {/* "Assessment Complete!" */}
+          <Text style={styles.summaryCompleteText}>Assessment Complete!</Text>
+          <Text style={styles.summaryTaskName}>{taskName}</Text>
+
+          {/* Risk level badge — big */}
+          <View style={[styles.summaryRiskBadge, { backgroundColor: 'rgba(255,255,255,0.25)' }]}>
+            <Text style={styles.summaryRiskBadgeText}>{riskLabel}</Text>
+          </View>
+
+          {/* Score — very large */}
+          <Text style={styles.summaryScoreNumber}>{finalScore}</Text>
+          <Text style={styles.summaryScoreLabel}>IADL Exposure Score</Text>
+
+          {/* TSL card */}
+          <View style={styles.summaryTslCard}>
+            <View style={styles.summaryTslRow}>
+              <Ionicons name={stabilityIcon as any} size={18} color="#fff" />
+              <Text style={styles.summaryTslLabel}>TSL:</Text>
+              <Text style={styles.summaryTslValue}>{getStabilityLabel(stability)}</Text>
+            </View>
+            <Text style={styles.summaryTslDesc}>{getStabilityDescription(stability)}</Text>
+          </View>
+
+          {/* Risk sentence */}
+          <View style={styles.summarySentenceBox}>
+            <Text style={styles.summarySentenceText}>{getRiskSentence(riskLevel)}</Text>
+          </View>
+        </View>
+
+        {/* Bottom — action buttons */}
+        <View style={{ paddingHorizontal: 24, paddingBottom: 32, gap: 12 }}>
+          {/* Breakdown button — primary CTA */}
+          <TouchableOpacity
+            onPress={onBreakdown}
+            activeOpacity={0.86}
+            style={styles.breakdownBtn}
+          >
+            <Ionicons name="bar-chart-outline" size={22} color={bgColor} />
+            <Text style={[styles.breakdownBtnText, { color: bgColor }]}>See Full Breakdown</Text>
+          </TouchableOpacity>
+
+          {/* Home button */}
+          <TouchableOpacity
+            onPress={onHome}
+            activeOpacity={0.82}
+            style={styles.homeBtn}
+          >
+            <Ionicons name="home-outline" size={20} color="rgba(255,255,255,0.9)" />
+            <Text style={styles.homeBtnText}>Back to Home</Text>
+          </TouchableOpacity>
+        </View>
+      </Animated.View>
+    </SafeAreaView>
+  );
+}
+
+// ── Main Result Screen ─────────────────────────────────────────────────────────
 export default function ResultScreen() {
   const router = useRouter();
   const { addAssessment } = useAssessmentStore();
@@ -128,6 +244,7 @@ export default function ResultScreen() {
     readOnly?: string;
   }>();
 
+  const [showSummary, setShowSummary] = useState(true);
   const [detailVisible, setDetailVisible] = useState(false);
 
   const riskLevel      = params.riskLevel as RiskLevel;
@@ -174,6 +291,11 @@ export default function ResultScreen() {
     });
   }, []);
 
+  // When readOnly, skip summary and go straight to breakdown
+  useEffect(() => {
+    if (params.readOnly === 'true') setShowSummary(false);
+  }, []);
+
   const riskColor  = getRiskColor(riskLevel);
   const riskBg     = getRiskBg(riskLevel);
   const riskLabel  = getRiskLabel(riskLevel);
@@ -183,6 +305,25 @@ export default function ResultScreen() {
   const stabilityColor = stability === 'very_stable' ? '#10B981' : stability === 'somewhat_unsteady' ? '#F59E0B' : '#EF4444';
   const stabilityBg    = stability === 'very_stable' ? '#D1FAE5' : stability === 'somewhat_unsteady' ? '#FEF3C7' : '#FEE2E2';
 
+  // ── Show summary first ────────────────────────────────────────────────────
+  if (showSummary) {
+    return (
+      <SummaryScreen
+        taskName={params.taskName}
+        finalScore={finalScore}
+        riskLevel={riskLevel}
+        riskColor={riskColor}
+        riskBg={riskBg}
+        riskLabel={riskLabel}
+        riskIcon={riskIcon}
+        stability={stability}
+        onBreakdown={() => setShowSummary(false)}
+        onHome={() => router.replace('/(main)/home')}
+      />
+    );
+  }
+
+  // ── Full breakdown view ────────────────────────────────────────────────────
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
@@ -190,7 +331,7 @@ export default function ResultScreen() {
         {/* Hero */}
         <View className="bg-primary px-6 pt-8 pb-14 rounded-b-[48px] items-center" style={styles.heroShadow}>
           <View className="w-24 h-24 rounded-full items-center justify-center mb-4" style={{ backgroundColor: riskBg }}>
-            <Ionicons name={riskIcon} size={48} color={riskColor} />
+            <Ionicons name={riskIcon as any} size={48} color={riskColor} />
           </View>
           <Text className="font-osbd text-white text-2xl mb-1">Assessment Complete!</Text>
           <Text className="font-osmd text-white/70 text-sm">{params.taskName}</Text>
@@ -265,19 +406,22 @@ export default function ResultScreen() {
         </View>
 
         {/* Task Stability */}
-        <View className="mx-5 mt-4 bg-white rounded-2xl p-4" style={styles.cardShadow}>
-          <Text className="font-osbd text-text mb-3">Task Stability Level (TSL)</Text>
-          <View className="flex-row items-center gap-3">
-            <View className="w-10 h-10 rounded-xl items-center justify-center" style={{ backgroundColor: stabilityBg }}>
+        <View className="mx-5 mt-4 bg-white rounded-2xl p-5" style={styles.cardShadow}>
+          <Text className="font-osbd text-text text-base mb-4">Task Stability Level (TSL)</Text>
+          <View className="flex-row items-center gap-4">
+            <View className="w-16 h-16 rounded-2xl items-center justify-center" style={{ backgroundColor: stabilityBg }}>
               <Ionicons
                 name={stability === 'very_stable' ? 'shield-checkmark-outline' : stability === 'somewhat_unsteady' ? 'alert-outline' : 'warning-outline'}
-                size={22}
+                size={32}
                 color={stabilityColor}
               />
             </View>
             <View className="flex-1">
-              <Text className="font-osbd text-text text-sm">{getStabilityLabel(stability)}</Text>
-              <Text className="font-osmd text-text-secondary text-xs mt-0.5">{getStabilityDescription(stability)}</Text>
+              <View className="flex-row items-center gap-2 mb-1">
+                <View className="w-2 h-2 rounded-full" style={{ backgroundColor: stabilityColor }} />
+                <Text className="font-osbd text-base" style={{ color: stabilityColor }}>{getStabilityLabel(stability)}</Text>
+              </View>
+              <Text className="font-osmd text-text-secondary text-sm leading-5">{getStabilityDescription(stability)}</Text>
             </View>
           </View>
         </View>
@@ -287,21 +431,40 @@ export default function ResultScreen() {
           <Text className="font-osbd text-text mb-3">Risk Rating Table</Text>
           <View className="gap-2">
             {[
-              { label: 'Low Risk',      range: '< 1.6',     color: '#10B981', bg: '#D1FAE5', sentence: 'Task is easy to perform, but required caution.' },
-              { label: 'Moderate Risk', range: '1.6 – 5.0', color: '#F59E0B', bg: '#FEF3C7', sentence: 'Task is not easy to perform, required more consideration.' },
-              { label: 'High Risk',     range: '> 5.0',     color: '#EF4444', bg: '#FEE2E2', sentence: 'Task is hard to perform, further investigation required urgently.' },
-            ].map((item) => (
-              <View key={item.label} className="rounded-xl p-3" style={{ backgroundColor: item.bg }}>
-                <View className="flex-row items-center justify-between mb-1">
-                  <View className="flex-row items-center gap-2">
-                    <View className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
-                    <Text className="font-osbd text-sm" style={{ color: item.color }}>{item.label}</Text>
+              { label: 'Low Risk',      range: '< 1.6',     color: '#10B981', bg: '#D1FAE5', sentence: 'Task is easy to perform, but required caution.',                        level: 'green'  },
+              { label: 'Moderate Risk', range: '1.6 – 5.0', color: '#F59E0B', bg: '#FEF3C7', sentence: 'Task is not easy to perform, required more consideration.',             level: 'yellow' },
+              { label: 'High Risk',     range: '> 5.0',     color: '#EF4444', bg: '#FEE2E2', sentence: 'Task is hard to perform, further investigation required urgently.',     level: 'red'    },
+            ].map((item) => {
+              const isMatch = item.level === riskLevel;
+              return (
+                <View
+                  key={item.label}
+                  className="rounded-xl"
+                  style={{
+                    backgroundColor: item.bg,
+                    padding: isMatch ? 14 : 10,
+                    borderWidth: isMatch ? 2 : 0,
+                    borderColor: item.color,
+                  }}
+                >
+                  <View className="flex-row items-center justify-between mb-1">
+                    <View className="flex-row items-center gap-2">
+                      <View className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
+                      <Text className="font-osbd" style={{ color: item.color, fontSize: isMatch ? 15 : 13 }}>{item.label}</Text>
+                    </View>
+                    <View className="flex-row items-center gap-2">
+                      {isMatch && (
+                        <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: item.color }}>
+                          <Text style={{ color: '#fff', fontSize: 11, fontFamily: 'OSans-Bold' }}>Score: {finalScore}</Text>
+                        </View>
+                      )}
+                      <Text className="font-osbd text-sm" style={{ color: item.color }}>{item.range}</Text>
+                    </View>
                   </View>
-                  <Text className="font-osbd text-sm" style={{ color: item.color }}>{item.range}</Text>
+                  <Text className="font-osmd" style={{ color: item.color, fontSize: isMatch ? 13 : 11 }}>{item.sentence}</Text>
                 </View>
-                <Text className="font-osmd text-xs" style={{ color: item.color }}>{item.sentence}</Text>
-              </View>
-            ))}
+              );
+            })}
           </View>
         </View>
 
@@ -441,7 +604,7 @@ export default function ResultScreen() {
               {/* Risk sentence */}
               <View className="rounded-xl p-4 mb-1" style={{ backgroundColor: riskBg }}>
                 <View className="flex-row items-center gap-2 mb-1">
-                  <Ionicons name={riskIcon} size={16} color={riskColor} />
+                  <Ionicons name={riskIcon as any} size={16} color={riskColor} />
                   <Text className="font-osbd text-sm" style={{ color: riskColor }}>{riskLabel}</Text>
                   <Text className="font-osmd text-xs ml-auto" style={{ color: riskColor }}>Score: {finalScore}</Text>
                 </View>
@@ -457,6 +620,140 @@ export default function ResultScreen() {
 }
 
 const styles = StyleSheet.create({
+  // ── Summary screen styles ──────────────────────────────────────────────────
+  summaryIconCircle: {
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 12,
+  },
+  summaryCompleteText: {
+    fontFamily: 'OSans-Bold',
+    fontSize: 26,
+    color: '#fff',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  summaryTaskName: {
+    fontFamily: 'OSans-Medium',
+    fontSize: 15,
+    color: 'rgba(255,255,255,0.75)',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  summaryRiskBadge: {
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+    borderRadius: 999,
+    marginBottom: 8,
+  },
+  summaryRiskBadgeText: {
+    fontFamily: 'OSans-Bold',
+    fontSize: 20,
+    color: '#fff',
+    letterSpacing: 0.5,
+  },
+  summaryScoreNumber: {
+    fontFamily: 'OSans-Bold',
+    fontSize: 88,
+    color: '#fff',
+    lineHeight: 96,
+    marginBottom: 0,
+  },
+  summaryScoreLabel: {
+    fontFamily: 'OSans-Medium',
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.7)',
+    marginBottom: 20,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  summaryTslCard: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 16,
+    width: '100%',
+  },
+  summaryTslRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 6,
+  },
+  summaryTslLabel: {
+    fontFamily: 'OSans-Medium',
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.75)',
+  },
+  summaryTslValue: {
+    fontFamily: 'OSans-Bold',
+    fontSize: 14,
+    color: '#fff',
+  },
+  summaryTslDesc: {
+    fontFamily: 'OSans-Medium',
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.8)',
+    lineHeight: 17,
+  },
+  summarySentenceBox: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    marginHorizontal: 8,
+  },
+  summarySentenceText: {
+    fontFamily: 'OSans-Medium',
+    fontSize: 14,
+    color: '#fff',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  breakdownBtn: {
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    paddingVertical: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  breakdownBtnText: {
+    fontFamily: 'OSans-Bold',
+    fontSize: 18,
+  },
+  homeBtn: {
+    borderRadius: 18,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  homeBtnText: {
+    fontFamily: 'OSans-Medium',
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.9)',
+  },
+
+  // ── Breakdown view styles ─────────────────────────────────────────────────
   heroShadow: {
     shadowColor: '#2563EB',
     shadowOffset: { width: 0, height: 8 },
