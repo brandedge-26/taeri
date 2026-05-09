@@ -163,7 +163,7 @@ export default function OnboardingScreen() {
       <View className="px-6 pb-8">
         {/* Dots */}
         <View className="flex-row justify-center items-center gap-2 mb-6">
-          {slides.map((_, i) => ( 
+          {slides.map((_, i) => (
             <View
               key={i}
               style={{ width: i === currentIndex ? 28 : 8 }}
