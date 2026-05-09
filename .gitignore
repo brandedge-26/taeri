@@ -3,6 +3,10 @@ node_modules/
 /.pnp
 .pnp.js
 
+
+# CLaude
+.claude/
+
 # Environment variables
 .env
 .env.local
