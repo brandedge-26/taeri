@@ -25,6 +25,6 @@ export const googleAuthSuccess = async (req, res) => {
     });
 
     res.redirect(
-        `${ENV.CLIENT_URL}/auth-success?token=${accessToken}&user=${encodeURIComponent(JSON.stringify(user))}`
+        `${ENV.CLIENT_URL}auth-success?token=${accessToken}&user=${encodeURIComponent(JSON.stringify(user))}`
     );
 }
