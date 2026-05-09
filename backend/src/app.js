@@ -22,6 +22,9 @@ await connectDB();
 // EXPRESS APP
 export const app = express();
 
+// TRUST PROXY (Railway ke liye zaroori)
+app.set("trust proxy", 1);
+
 
 
 
