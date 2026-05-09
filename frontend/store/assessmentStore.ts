@@ -3,7 +3,7 @@ import axios from 'axios';
 import { create } from 'zustand';
 import { useAuthStore } from './authStore';
 
-const BASE_URL = 'http://192.168.100.23:5510/api';
+const BASE_URL = 'https://respectful-adaptation-production-6e01.up.railway.app/api';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

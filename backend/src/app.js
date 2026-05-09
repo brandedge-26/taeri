@@ -45,7 +45,7 @@ app.use(sanitizeInput);
 
 // CORS CONFIGURATION
 app.use(cors({
-    origin: true, // development mein sab allow
+    origin: "*",
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
