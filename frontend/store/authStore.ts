@@ -5,6 +5,8 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 const BASE_URL = 'https://respectful-adaptation-production-6e01.up.railway.app/api';
 
+axios.defaults.timeout = 10000;
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type AuthUser = {

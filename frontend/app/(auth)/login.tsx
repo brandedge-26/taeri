@@ -18,7 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../../store/authStore';
 
-const API_BASE = 'https://ivelisse-pocky-weightily.ngrok-free.dev/api';
+const API_BASE = 'https://respectful-adaptation-production-6e01.up.railway.app/api';
 
 export default function LoginScreen() {
 
@@ -34,7 +34,7 @@ export default function LoginScreen() {
   async function handleGoogleLogin() {
     const redirectUrl = Linking.createURL('auth-success');
     const result = await WebBrowser.openAuthSessionAsync(
-      `${API_BASE}/auth/google?ngrok-skip-browser-warning=true`,
+      `${API_BASE}/auth/google`,
       redirectUrl
     );
 
