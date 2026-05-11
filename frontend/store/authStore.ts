@@ -5,7 +5,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 
 const BASE_URL = 'https://respectful-adaptation-production-6e01.up.railway.app/api';
 
-axios.defaults.timeout = 10000;
+axios.defaults.timeout = 30000;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -50,6 +50,12 @@ type AuthState = {
 // ─── Helper ──────────────────────────────────────────────────────────────────
 
 function extractError(err: any): string {
+  if (err?.code === 'ECONNABORTED' || err?.message?.includes('timeout')) {
+    return 'Request timed out. Server may be starting up, please try again.';
+  }
+  if (err?.message === 'Network Error') {
+    return 'Cannot reach server. Please check your internet connection and try again.';
+  }
   return err?.response?.data?.message || err?.message || 'Something went wrong';
 }
 
