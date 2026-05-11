@@ -6,9 +6,8 @@ import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 import { generateOtp, hashOtp, verifyOtp } from "../utils/otp.js";
 import bcrypt from "bcrypt";
 import { ENV } from "../config/env.js";
-import { sendOtpEmail, sendWelcomeEmail } from "../utils/email.js";
+// import { sendOtpEmail, sendWelcomeEmail } from "../utils/email.js";
 import { z } from "zod";
-
 
 
 
@@ -41,54 +40,51 @@ const registerController = async (req, res, next) => {
 
 
 
-        // CREATE NEW USER IN DB
+        // CREATE NEW USER IN DB (email verified directly, no OTP needed)
         const newUser = new User({
             name,
             email,
             password: hashedPassword,
             age,
-            livingSituation
+            livingSituation,
+            isEmailVerified: true
         });
 
 
         await newUser.save();
 
 
+        // // OTP LOGIC (disabled)
+        // const otp = generateOtp();
+        // const otpHash = await hashOtp(otp);
+        // const otpExpiresMinutes = 3;
+        // const otpExpiresAt = new Date(Date.now() + otpExpiresMinutes * 60 * 1000);
 
-        // OTP LOGIC
-        const otp = generateOtp();
-        const otpHash = await hashOtp(otp);
-        const otpExpiresMinutes = 3;
-        const otpExpiresAt = new Date(Date.now() + otpExpiresMinutes * 60 * 1000);
+        // await Otp.deleteMany({
+        //     email,
+        //     purpose: "register",
+        //     $or: [
+        //         { expiresAt: { $lt: new Date() } },
+        //         { consumedAt: { $ne: null } }
+        //     ]
+        // });
 
+        // await Otp.create({
+        //     email,
+        //     otpHash,
+        //     purpose: "register",
+        //     expiresAt: otpExpiresAt
+        // });
 
-        // Smart deletion - Only delete expired or consumed OTPs
-        await Otp.deleteMany({
-            email,
-            purpose: "register",
-            $or: [
-                { expiresAt: { $lt: new Date() } },  // Expired
-                { consumedAt: { $ne: null } }         // Already used
-            ]
-        });
-
-        await Otp.create({
-            email,
-            otpHash,
-            purpose: "register",
-            expiresAt: otpExpiresAt
-        });
-
-
-        sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes }).catch((emailErr) => {
-            console.error("OTP email failed:", emailErr.message);
-        });
+        // sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes }).catch((emailErr) => {
+        //     console.error("OTP email failed:", emailErr.message);
+        // });
 
 
         // SUCCESS RESPONSE
         return res.status(201).json({
             success: true,
-            message: "Registration successfully! OTP sent to your email.",
+            message: "Registration successful! You can now login.",
             user: {
                 userId: newUser._id,
                 name: newUser.name,
@@ -108,93 +104,69 @@ const registerController = async (req, res, next) => {
 
 
 
-
-
-// VERIFY OTP CONTROLLER
+// VERIFY OTP CONTROLLER (disabled - email not in use)
 const verifyOtpController = async (req, res, next) => {
     try {
 
+        // const parsedSchema = otpSchema.safeParse(req.body);
+        // const { success, data, error } = parsedSchema;
+        // if (!success) return next(error);
 
-        const parsedSchema = otpSchema.safeParse(req.body);
-        const { success, data, error } = parsedSchema;
-        if (!success) return next(error);
+        // const { email, otp } = data;
 
+        // const otpDoc = await Otp.findOne({ email, purpose: "register" })
+        //     .sort({ createdAt: -1 })
+        //     .exec();
 
-        const { email, otp } = data;
+        // if (!otpDoc) {
+        //     const err = new Error("OTP not found. Please request a new OTP.");
+        //     err.statusCode = 404;
+        //     throw err;
+        // }
 
+        // if (otpDoc.consumedAt) {
+        //     const err = new Error("OTP already used. Please request a new OTP.");
+        //     err.statusCode = 400;
+        //     throw err;
+        // }
 
-        const otpDoc = await Otp.findOne({ email, purpose: "register" })
-            .sort({ createdAt: -1 })
-            .exec();
+        // const currentTime = new Date();
+        // if (otpDoc.expiresAt < currentTime) {
+        //     const expiredMinutesAgo = Math.floor((currentTime - otpDoc.expiresAt) / (60 * 1000));
+        //     const err = new Error(`OTP expired ${expiredMinutesAgo} minute(s) ago. Please request a new OTP.`);
+        //     err.statusCode = 400;
+        //     throw err;
+        // }
 
+        // if (otpDoc.attempts >= 5) {
+        //     const err = new Error("Too many invalid attempts. Please request a new OTP.");
+        //     err.statusCode = 429;
+        //     throw err;
+        // }
 
-        if (!otpDoc) {
-            const err = new Error("OTP not found. Please request a new OTP.");
-            err.statusCode = 404;
-            throw err;
-        }
+        // const isValid = await verifyOtp(otp, otpDoc.otpHash);
+        // if (!isValid) {
+        //     otpDoc.attempts += 1;
+        //     await otpDoc.save();
+        //     const remainingAttempts = 5 - otpDoc.attempts;
+        //     const err = new Error(`Invalid OTP. ${remainingAttempts} attempt(s) remaining.`);
+        //     err.statusCode = 400;
+        //     throw err;
+        // }
 
+        // otpDoc.consumedAt = new Date();
+        // await otpDoc.save();
 
-        if (otpDoc.consumedAt) {
-            const err = new Error("OTP already used. Please request a new OTP.");
-            err.statusCode = 400;
-            throw err;
-        }
-
-        // Manual expiry check with detailed error message
-        const currentTime = new Date();
-        if (otpDoc.expiresAt < currentTime) {
-            const expiredMinutesAgo = Math.floor((currentTime - otpDoc.expiresAt) / (60 * 1000));
-
-            const err = new Error(
-                `OTP expired ${expiredMinutesAgo} minute(s) ago. Please request a new OTP.`
-            );
-            err.statusCode = 400;
-            throw err;
-        }
-
-
-        if (otpDoc.attempts >= 5) {
-            const err = new Error("Too many invalid attempts. Please request a new OTP.");
-            err.statusCode = 429;
-            throw err;
-        }
-
-
-        const isValid = await verifyOtp(otp, otpDoc.otpHash);
-        if (!isValid) {
-            otpDoc.attempts += 1;
-            await otpDoc.save();
-
-            const remainingAttempts = 5 - otpDoc.attempts;
-            const err = new Error(
-                `Invalid OTP. ${remainingAttempts} attempt(s) remaining.`
-            );
-            err.statusCode = 400;
-            throw err;
-        }
-
-
-        otpDoc.consumedAt = new Date();
-        await otpDoc.save();
-
-        const user = await User.findOne({ email });
-        if (user && !user.isEmailVerified) {
-            user.isEmailVerified = true;
-            await user.save();
-            
-            // Send welcome email after successful verification
-            try {
-                await sendWelcomeEmail({ to: email, name: user.name });
-            } catch (emailErr) {
-                console.log("Welcome email failed:", emailErr.message);
-                // Don't fail the request if welcome email fails
-            }
-        }
+        // const user = await User.findOne({ email });
+        // if (user && !user.isEmailVerified) {
+        //     user.isEmailVerified = true;
+        //     await user.save();
+        //     // await sendWelcomeEmail({ to: email, name: user.name });
+        // }
 
         return res.status(200).json({
             success: true,
-            message: "OTP verified successfully. You can now login"
+            message: "OTP verification is currently disabled."
         });
 
     } catch (err) {
@@ -203,6 +175,52 @@ const verifyOtpController = async (req, res, next) => {
 };
 
 
+
+
+// RESEND OTP CONTROLLER (disabled - email not in use)
+const resendOtpController = async (req, res, next) => {
+    try {
+
+        // const parsedSchema = z.object({ email: z.string().email() }).safeParse(req.body);
+        // const { success, data, error } = parsedSchema;
+        // if (!success) return next(error);
+
+        // const { email } = data;
+
+        // const user = await User.findOne({ email });
+        // if (!user) {
+        //     const err = new Error("User not found with this email.");
+        //     err.statusCode = 404;
+        //     throw err;
+        // }
+
+        // if (user.isEmailVerified) {
+        //     const err = new Error("Email already verified. You can login directly.");
+        //     err.statusCode = 400;
+        //     throw err;
+        // }
+
+        // const otp = generateOtp();
+        // const otpHash = await hashOtp(otp);
+        // const otpExpiresMinutes = 3;
+        // const otpExpiresAt = new Date(Date.now() + otpExpiresMinutes * 60 * 1000);
+
+        // await Otp.deleteMany({ email, purpose: "register", $or: [{ expiresAt: { $lt: new Date() } }, { consumedAt: { $ne: null } }] });
+        // await Otp.create({ email, otpHash, purpose: "register", expiresAt: otpExpiresAt });
+
+        // sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes }).catch((emailErr) => {
+        //     console.error("Resend OTP email failed:", emailErr.message);
+        // });
+
+        return res.status(200).json({
+            success: true,
+            message: "OTP resend is currently disabled."
+        });
+
+    } catch (err) {
+        next(err);
+    }
+};
 
 
 
@@ -236,11 +254,12 @@ const loginController = async (req, res, next) => {
             throw err;
         }
 
-        if (!user.isEmailVerified) {
-            const err = new Error("Email not verified. Please verify OTP first.");
-            err.statusCode = 403;
-            throw err;
-        }
+        // Email verification check disabled (no OTP system)
+        // if (!user.isEmailVerified) {
+        //     const err = new Error("Email not verified. Please verify OTP first.");
+        //     err.statusCode = 403;
+        //     throw err;
+        // }
 
 
         // GENERATE ACCESS + REFRESH TOKEN
@@ -281,7 +300,6 @@ const loginController = async (req, res, next) => {
 
 
 
-
 // LOGOUT CONTROLLER
 const logoutController = async (req, res, next) => {
     try {
@@ -296,102 +314,6 @@ const logoutController = async (req, res, next) => {
         return res.status(200).json({
             success: true,
             message: "Logout successful."
-        });
-
-
-    } catch (err) {
-        next(err);
-    }
-};
-
-
-
-
-
-// RESEND OTP CONTROLLER
-const resendOtpController = async (req, res, next) => {
-    try {
-
-        const parsedSchema = z.object({
-            email: z.string().email(),
-        }).safeParse(req.body);
-
-
-        const { success, data, error } = parsedSchema;
-        if (!success) return next(error);
-
-
-        const { email } = data;
-
-
-        // Check if user exists
-        const user = await User.findOne({ email });
-        if (!user) {
-            const err = new Error("User not found with this email.");
-            err.statusCode = 404;
-            throw err;
-        }
-
-
-        // Check if already verified
-        if (user.isEmailVerified) {
-            const err = new Error("Email already verified. You can login directly.");
-            err.statusCode = 400;
-            throw err;
-        }
-
-
-        // Check if there's a valid recent OTP (prevent spam)
-        const recentValidOtp = await Otp.findOne({
-            email,
-            purpose: "register",
-            expiresAt: { $gt: new Date() },           // Not expired
-            consumedAt: null,                          // Not used
-            createdAt: { $gte: new Date(Date.now() - 60 * 1000) } // Last 1 minute
-        });
-
-
-        if (recentValidOtp) {
-            const err = new Error("OTP already sent. Please wait 1 minute before requesting again.");
-            err.statusCode = 429;
-            throw err;
-        }
-
-
-        // Generate new OTP
-        const otp = generateOtp();
-        const otpHash = await hashOtp(otp);
-        const otpExpiresMinutes = 3;
-        const otpExpiresAt = new Date(Date.now() + otpExpiresMinutes * 60 * 1000);
-
-
-        // Smart deletion - Only delete expired or consumed OTPs
-        await Otp.deleteMany({
-            email,
-            purpose: "register",
-            $or: [
-                { expiresAt: { $lt: new Date() } },  // Expired
-                { consumedAt: { $ne: null } }         // Already used
-            ]
-        });
-
-        await Otp.create({
-            email,
-            otpHash,
-            purpose: "register",
-            expiresAt: otpExpiresAt
-        });
-
-
-        // Send OTP email
-        sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes }).catch((emailErr) => {
-            console.error("Resend OTP email failed:", emailErr.message);
-        });
-
-
-        return res.status(200).json({
-            success: true,
-            message: "New OTP sent to your email successfully."
         });
 
 
@@ -552,58 +474,35 @@ const deleteAccountController = async (req, res, next) => {
 
 
 
-// FORGOT PASSWORD CONTROLLER
+// FORGOT PASSWORD CONTROLLER (disabled - email not in use)
 const forgotPasswordController = async (req, res, next) => {
     try {
 
-        const parsed = z.object({ email: z.string().email() }).safeParse(req.body);
-        if (!parsed.success) return next(parsed.error);
+        // const parsed = z.object({ email: z.string().email() }).safeParse(req.body);
+        // if (!parsed.success) return next(parsed.error);
 
-        const { email } = parsed.data;
+        // const { email } = parsed.data;
 
-        const user = await User.findOne({ email });
-        if (!user) {
-            const err = new Error("No account found with this email.");
-            err.statusCode = 404;
-            throw err;
-        }
+        // const user = await User.findOne({ email });
+        // if (!user) {
+        //     const err = new Error("No account found with this email.");
+        //     err.statusCode = 404;
+        //     throw err;
+        // }
 
-        // Check spam — no new OTP if a valid one was sent in last 1 minute
-        const recentOtp = await Otp.findOne({
-            email,
-            purpose: "reset-password",
-            expiresAt: { $gt: new Date() },
-            consumedAt: null,
-            createdAt: { $gte: new Date(Date.now() - 60 * 1000) }
-        });
+        // const otp = generateOtp();
+        // const otpHash = await hashOtp(otp);
+        // const otpExpiresMinutes = 10;
+        // const otpExpiresAt = new Date(Date.now() + otpExpiresMinutes * 60 * 1000);
 
-        if (recentOtp) {
-            const err = new Error("OTP already sent. Please wait 1 minute before requesting again.");
-            err.statusCode = 429;
-            throw err;
-        }
+        // await Otp.deleteMany({ email, purpose: "reset-password", $or: [{ expiresAt: { $lt: new Date() } }, { consumedAt: { $ne: null } }] });
+        // await Otp.create({ email, otpHash, purpose: "reset-password", expiresAt: otpExpiresAt });
 
-        const otp = generateOtp();
-        const otpHash = await hashOtp(otp);
-        const otpExpiresMinutes = 10;
-        const otpExpiresAt = new Date(Date.now() + otpExpiresMinutes * 60 * 1000);
+        // await sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes });
 
-        await Otp.deleteMany({
-            email,
-            purpose: "reset-password",
-            $or: [
-                { expiresAt: { $lt: new Date() } },
-                { consumedAt: { $ne: null } }
-            ]
-        });
-
-        await Otp.create({ email, otpHash, purpose: "reset-password", expiresAt: otpExpiresAt });
-
-        await sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes });
-
-        return res.status(200).json({
-            success: true,
-            message: "OTP sent to your email for password reset."
+        return res.status(503).json({
+            success: false,
+            message: "Password reset via email is currently unavailable."
         });
 
     } catch (err) {
