@@ -80,7 +80,9 @@ const registerController = async (req, res, next) => {
         });
 
 
-        await sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes });
+        sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes }).catch((emailErr) => {
+            console.error("OTP email failed:", emailErr.message);
+        });
 
 
         // SUCCESS RESPONSE
@@ -382,7 +384,9 @@ const resendOtpController = async (req, res, next) => {
 
 
         // Send OTP email
-        await sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes });
+        sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes }).catch((emailErr) => {
+            console.error("Resend OTP email failed:", emailErr.message);
+        });
 
 
         return res.status(200).json({
