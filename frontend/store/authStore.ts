@@ -79,7 +79,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const { data } = await axios.post(`${BASE_URL}/auth/register`, payload);
-          set({ user: data.user, pendingEmail: payload.email, isLoading: false });
+          set({ user: data.user, accessToken: data.accessToken, pendingEmail: null, isLoading: false });
           return true;
         } catch (err) {
           set({ error: extractError(err), isLoading: false });

@@ -54,42 +54,29 @@ const registerController = async (req, res, next) => {
         await newUser.save();
 
 
-        // // OTP LOGIC (disabled)
-        // const otp = generateOtp();
-        // const otpHash = await hashOtp(otp);
-        // const otpExpiresMinutes = 3;
-        // const otpExpiresAt = new Date(Date.now() + otpExpiresMinutes * 60 * 1000);
+        // GENERATE TOKENS (auto-login after register)
+        const accessToken = generateAccessToken({ id: newUser._id });
+        const refreshToken = generateRefreshToken({ id: newUser._id });
 
-        // await Otp.deleteMany({
-        //     email,
-        //     purpose: "register",
-        //     $or: [
-        //         { expiresAt: { $lt: new Date() } },
-        //         { consumedAt: { $ne: null } }
-        //     ]
-        // });
-
-        // await Otp.create({
-        //     email,
-        //     otpHash,
-        //     purpose: "register",
-        //     expiresAt: otpExpiresAt
-        // });
-
-        // sendOtpEmail({ to: email, otp, expiresMinutes: otpExpiresMinutes }).catch((emailErr) => {
-        //     console.error("OTP email failed:", emailErr.message);
-        // });
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: ENV.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
 
 
         // SUCCESS RESPONSE
         return res.status(201).json({
             success: true,
-            message: "Registration successful! You can now login.",
+            message: "Registration successful!",
+            accessToken,
             user: {
                 userId: newUser._id,
                 name: newUser.name,
                 email: newUser.email,
                 age: newUser.age,
+                livingSituation: newUser.livingSituation,
                 profilePicture: null,
             }
         });
