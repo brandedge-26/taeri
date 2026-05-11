@@ -147,10 +147,10 @@ function SummaryScreen({
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: bgColor }}>
       <Animated.View style={{ flex: 1, opacity: fadeAnim }}>
-
-        {/* Top section — icon + label */}
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, alignItems: 'center', paddingHorizontal: 32, paddingTop: 24, paddingBottom: 24 }}
+          showsVerticalScrollIndicator={false}
+        >
           {/* Icon circle */}
           <Animated.View
             style={[
@@ -175,7 +175,7 @@ function SummaryScreen({
           <Text style={styles.summaryScoreLabel}>IADL Exposure Score</Text>
 
           {/* TSL card */}
-          <View style={styles.summaryTslCard}>
+          <View style={[styles.summaryTslCard, { width: '100%' }]}>
             <View style={styles.summaryTslRow}>
               <Ionicons name={stabilityIcon as any} size={18} color="#fff" />
               <Text style={styles.summaryTslLabel}>TSL:</Text>
@@ -185,33 +185,31 @@ function SummaryScreen({
           </View>
 
           {/* Risk sentence */}
-          <View style={styles.summarySentenceBox}>
+          <View style={[styles.summarySentenceBox, { width: '100%' }]}>
             <Text style={styles.summarySentenceText}>{getRiskSentence(riskLevel)}</Text>
           </View>
-        </View>
 
-        {/* Bottom — action buttons */}
-        <View style={{ paddingHorizontal: 24, paddingBottom: 32, gap: 12 }}>
-          {/* Breakdown button — primary CTA */}
-          <TouchableOpacity
-            onPress={onBreakdown}
-            activeOpacity={0.86}
-            style={styles.breakdownBtn}
-          >
-            <Ionicons name="bar-chart-outline" size={22} color={bgColor} />
-            <Text style={[styles.breakdownBtnText, { color: bgColor }]}>See Full Breakdown</Text>
-          </TouchableOpacity>
+          {/* Action buttons */}
+          <View style={{ width: '100%', marginTop: 24, gap: 12 }}>
+            <TouchableOpacity
+              onPress={onBreakdown}
+              activeOpacity={0.86}
+              style={styles.breakdownBtn}
+            >
+              <Ionicons name="bar-chart-outline" size={22} color={bgColor} />
+              <Text style={[styles.breakdownBtnText, { color: bgColor }]}>See Full Breakdown</Text>
+            </TouchableOpacity>
 
-          {/* Home button */}
-          <TouchableOpacity
-            onPress={onHome}
-            activeOpacity={0.82}
-            style={styles.homeBtn}
-          >
-            <Ionicons name="home-outline" size={20} color="rgba(255,255,255,0.9)" />
-            <Text style={styles.homeBtnText}>Back to Home</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              onPress={onHome}
+              activeOpacity={0.82}
+              style={styles.homeBtn}
+            >
+              <Ionicons name="home-outline" size={20} color="rgba(255,255,255,0.9)" />
+              <Text style={styles.homeBtnText}>Back to Home</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </Animated.View>
     </SafeAreaView>
   );
