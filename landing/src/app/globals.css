@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary:      #2563EB;
+  --color-primary-dark: #1d4ed8;
+  --font-sans:          var(--font-osans);
+  --font-mono:          var(--font-osans);
+}
+
+html,
+body {
+  font-family: var(--font-osans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

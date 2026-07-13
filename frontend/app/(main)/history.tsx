@@ -2,18 +2,18 @@ import type { Assessment, RiskLevel } from '@/types/assessment';
 import { getRiskBg, getRiskColor, getRiskLabel } from '@/utils/taerScoring';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAssessmentStore } from '../../store/assessmentStore';
 
 type FilterTab = 'all' | RiskLevel;
 
-const TABS: { key: FilterTab; label: string; icon: string; color: string; bg: string }[] = [
-  { key: 'all', label: 'All', icon: 'list-outline', color: '#2563EB', bg: '#EFF6FF' },
-  { key: 'green', label: 'Low', icon: 'checkmark-circle', color: '#10B981', bg: '#D1FAE5' },
-  { key: 'yellow', label: 'Moderate', icon: 'warning', color: '#F59E0B', bg: '#FEF3C7' },
-  { key: 'red', label: 'High', icon: 'alert-circle', color: '#EF4444', bg: '#FEE2E2' },
+const RISK_TABS: { key: FilterTab; label: string; icon: string; color: string; bg: string }[] = [
+  { key: 'all',    label: 'All',      icon: 'list-outline',     color: '#2563EB', bg: '#EFF6FF' },
+  { key: 'green',  label: 'Low',      icon: 'checkmark-circle', color: '#10B981', bg: '#D1FAE5' },
+  { key: 'yellow', label: 'Moderate', icon: 'warning',          color: '#F59E0B', bg: '#FEF3C7' },
+  { key: 'red',    label: 'High',     icon: 'alert-circle',     color: '#EF4444', bg: '#FEE2E2' },
 ];
 
 function formatDate(iso: string): string {
@@ -22,26 +22,44 @@ function formatDate(iso: string): string {
   });
 }
 
+function getOverallRisk(list: Assessment[]): RiskLevel | null {
+  if (!list.length) return null;
+  if (list.some((a) => a.riskLevel === 'red')) return 'red';
+  if (list.some((a) => a.riskLevel === 'yellow')) return 'yellow';
+  return 'green';
+}
+
 export default function HistoryScreen() {
   const router = useRouter();
   const { assessments, fetchAssessments, removeAssessment, removeAllAssessments } = useAssessmentStore();
-  const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
+  const [activeRisk, setActiveRisk] = useState<FilterTab>('all');
+  const [selectedWeek, setSelectedWeek] = useState<number | 'all'>('all');
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchAssessments();
-    }, []),
+  useFocusEffect(useCallback(() => { fetchAssessments(); }, []));
+
+  // unique weeks from data
+  const weeks = useMemo(() => {
+    const s = new Set(assessments.map((a) => a.weekNumber));
+    return Array.from(s).sort((a, b) => a - b);
+  }, [assessments]);
+
+  // first filter by week
+  const weekFiltered = useMemo(
+    () => selectedWeek === 'all' ? assessments : assessments.filter((a) => a.weekNumber === selectedWeek),
+    [assessments, selectedWeek],
   );
 
-  const filtered = activeFilter === 'all'
-    ? assessments
-    : assessments.filter((a) => a.riskLevel === activeFilter);
+  // then filter by risk
+  const filtered = useMemo(
+    () => activeRisk === 'all' ? weekFiltered : weekFiltered.filter((a) => a.riskLevel === activeRisk),
+    [weekFiltered, activeRisk],
+  );
 
   const counts = {
-    all: assessments.length,
-    green: assessments.filter((a) => a.riskLevel === 'green').length,
-    yellow: assessments.filter((a) => a.riskLevel === 'yellow').length,
-    red: assessments.filter((a) => a.riskLevel === 'red').length,
+    all:    weekFiltered.length,
+    green:  weekFiltered.filter((a) => a.riskLevel === 'green').length,
+    yellow: weekFiltered.filter((a) => a.riskLevel === 'yellow').length,
+    red:    weekFiltered.filter((a) => a.riskLevel === 'red').length,
   };
 
   async function handleDeleteAll() {
@@ -69,38 +87,67 @@ export default function HistoryScreen() {
         </Text>
       </View>
 
-      {/* Filter Tab Bar */}
-      <View className="mx-5 -mt-5 bg-white rounded-2xl p-1.5 flex-row gap-1" style={styles.tabBar}>
-        {TABS.map((tab) => {
-          const active = activeFilter === tab.key;
+      {/* ── Week Tabs ── */}
+      <View className="mt-4 mb-2">
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
+        >
+          {/* All tab */}
+          <TouchableOpacity
+            onPress={() => setSelectedWeek('all')}
+            activeOpacity={0.8}
+            style={[styles.weekTab, selectedWeek === 'all' ? styles.weekTabActive : styles.weekTabInactive]}
+          >
+            <Text style={[{ fontFamily: 'OSans-Bold', fontSize: 13 }, selectedWeek === 'all' ? { color: '#fff' } : { color: '#475569' }]}>
+              All
+            </Text>
+          </TouchableOpacity>
+
+          {weeks.map((w) => {
+            const isActive = w === selectedWeek;
+            const wRisk = getOverallRisk(assessments.filter((a) => a.weekNumber === w));
+            const dotColor = wRisk === 'red' ? '#EF4444' : wRisk === 'yellow' ? '#F59E0B' : wRisk === 'green' ? '#10B981' : null;
+            return (
+              <TouchableOpacity
+                key={w}
+                onPress={() => setSelectedWeek(w)}
+                activeOpacity={0.8}
+                style={[styles.weekTab, isActive ? styles.weekTabActive : styles.weekTabInactive]}
+              >
+                <Text style={[{ fontFamily: 'OSans-Bold', fontSize: 13 }, isActive ? { color: '#fff' } : { color: '#475569' }]}>
+                  Week {w}
+                </Text>
+                {dotColor && (
+                  <View style={{
+                    width: 6, height: 6, borderRadius: 3,
+                    backgroundColor: isActive ? 'rgba(255,255,255,0.7)' : dotColor,
+                    marginLeft: 5,
+                  }} />
+                )}
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* ── Risk Filter Tab Bar ── */}
+      <View className="mx-5 bg-white rounded-2xl p-1.5 flex-row gap-1 mb-3" style={styles.tabBar}>
+        {RISK_TABS.map((tab) => {
+          const active = activeRisk === tab.key;
           return (
             <TouchableOpacity
               key={tab.key}
-              onPress={() => setActiveFilter(tab.key)}
+              onPress={() => setActiveRisk(tab.key)}
               activeOpacity={0.8}
-              style={[
-                styles.tab,
-                active && { backgroundColor: tab.bg },
-              ]}
+              style={[styles.tab, active && { backgroundColor: tab.bg }]}
             >
-              <Ionicons
-                name={tab.icon as any}
-                size={13}
-                color={active ? tab.color : '#94A3B8'}
-              />
-              <Text
-                className="font-osbd text-xs ml-1"
-                style={{ color: active ? tab.color : '#94A3B8' }}
-              >
+              <Ionicons name={tab.icon as any} size={13} color={active ? tab.color : '#94A3B8'} />
+              <Text className="font-osbd text-xs ml-1" style={{ color: active ? tab.color : '#94A3B8' }}>
                 {tab.label}
               </Text>
-              {/* Count badge */}
-              <View
-                style={[
-                  styles.badge,
-                  { backgroundColor: active ? tab.color : '#E2E8F0' },
-                ]}
-              >
+              <View style={[styles.badge, { backgroundColor: active ? tab.color : '#E2E8F0' }]}>
                 <Text style={[styles.badgeText, { color: active ? '#fff' : '#64748B' }]}>
                   {counts[tab.key]}
                 </Text>
@@ -112,7 +159,7 @@ export default function HistoryScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 20, paddingTop: 16, paddingBottom: 40 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
       >
         {assessments.length === 0 ? (
           <View className="items-center py-16">
@@ -133,21 +180,13 @@ export default function HistoryScreen() {
             </TouchableOpacity>
           </View>
         ) : filtered.length === 0 ? (
-          /* No results for this filter */
           <View className="items-center py-16">
-            <View
-              className="w-20 h-20 rounded-full items-center justify-center mb-4"
-              style={{ backgroundColor: TABS.find((t) => t.key === activeFilter)!.bg }}
-            >
-              <Ionicons
-                name={TABS.find((t) => t.key === activeFilter)!.icon as any}
-                size={36}
-                color={TABS.find((t) => t.key === activeFilter)!.color}
-              />
+            <View className="w-20 h-20 rounded-full bg-primary-50 items-center justify-center mb-4">
+              <Ionicons name="calendar-outline" size={36} color="#2563EB" />
             </View>
-            <Text className="font-osbd text-text text-lg mb-2">No {TABS.find((t) => t.key === activeFilter)!.label} Risk assessments</Text>
+            <Text className="font-osbd text-text text-lg mb-2">No assessments found</Text>
             <Text className="font-osmd text-text-secondary text-sm text-center">
-              You have no assessments in this category yet.
+              Try changing the week or risk filter.
             </Text>
           </View>
         ) : (
@@ -161,54 +200,38 @@ export default function HistoryScreen() {
                 onPress={() => router.push({
                   pathname: '/(main)/assess/result',
                   params: {
-                    taskId: a.taskId,
-                    taskName: a.taskName,
-                    frequency: a.frequency,
-                    duration: a.duration,
-                    physicalDemand: String(a.physicalDemand),
-                    complexity: String(a.complexity),
+                    taskId: a.taskId, taskName: a.taskName,
+                    frequency: a.frequency, duration: a.duration,
+                    physicalDemand: String(a.physicalDemand), complexity: String(a.complexity),
                     psychological: String(a.psychological),
-                    neck: String(a.neck),
-                    arm: String(a.arm),
-                    wrist: String(a.wrist),
-                    back: String(a.back),
-                    leg: String(a.leg),
-                    posture: String(a.posture),
-                    handling: String(a.handling),
-                    stability: a.stability,
-                    rawScore: String(a.rawScore),
-                    adjustmentFactor: String(a.adjustmentFactor),
-                    finalScore: String(a.finalScore),
-                    riskLevel: a.riskLevel,
-                    readOnly: 'true',
+                    neck: String(a.neck), arm: String(a.arm), wrist: String(a.wrist),
+                    back: String(a.back), leg: String(a.leg), posture: String(a.posture),
+                    handling: String(a.handling), stability: a.stability,
+                    rawScore: String(a.rawScore), adjustmentFactor: String(a.adjustmentFactor),
+                    finalScore: String(a.finalScore), riskLevel: a.riskLevel, readOnly: 'true',
                   },
                 })}
               >
                 <View className="flex-row items-start gap-3">
-                  <View
-                    className="w-11 h-11 rounded-full items-center justify-center"
-                    style={{ backgroundColor: getRiskBg(a.riskLevel) }}
-                  >
+                  <View className="w-11 h-11 rounded-full items-center justify-center" style={{ backgroundColor: getRiskBg(a.riskLevel) }}>
                     <Ionicons
-                      name={
-                        a.riskLevel === 'green' ? 'checkmark-circle' :
-                          a.riskLevel === 'yellow' ? 'warning' : 'alert-circle'
-                      }
-                      size={24}
-                      color={getRiskColor(a.riskLevel)}
+                      name={a.riskLevel === 'green' ? 'checkmark-circle' : a.riskLevel === 'yellow' ? 'warning' : 'alert-circle'}
+                      size={24} color={getRiskColor(a.riskLevel)}
                     />
                   </View>
 
                   <View className="flex-1">
                     <View className="flex-row items-center justify-between">
-                      <Text className="font-osbd text-text text-base flex-1 mr-2" numberOfLines={1}>
-                        {a.taskName}
-                      </Text>
+                      <Text className="font-osbd text-text text-base flex-1 mr-2" numberOfLines={1}>{a.taskName}</Text>
                       <TouchableOpacity onPress={() => handleDelete(a.id)}>
                         <Ionicons name="trash-outline" size={18} color="#94A3B8" />
                       </TouchableOpacity>
                     </View>
-                    <Text className="font-osmd text-text-secondary text-xs mt-0.5">{formatDate(a.date)}</Text>
+                    <View className="flex-row items-center gap-2 mt-0.5">
+                      <Text className="font-osmd text-text-secondary text-xs">{formatDate(a.date)}</Text>
+                      <View className="w-1 h-1 rounded-full bg-gray-300" />
+                      <Text className="font-osbd text-xs text-primary">Week {a.weekNumber}</Text>
+                    </View>
 
                     <View className="flex-row items-center gap-3 mt-2">
                       <View className="px-2 py-0.5 rounded-full" style={{ backgroundColor: getRiskBg(a.riskLevel) }}>
@@ -253,53 +276,40 @@ export default function HistoryScreen() {
 
 const styles = StyleSheet.create({
   heroShadow: {
-    shadowColor: '#2563EB',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
+    shadowColor: '#2563EB', shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3, shadowRadius: 20, elevation: 10,
+  },
+  weekTab: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20,
+  },
+  weekTabActive: {
+    backgroundColor: '#2563EB',
+    shadowColor: '#2563EB', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35, shadowRadius: 8, elevation: 5,
+  },
+  weekTabInactive: {
+    backgroundColor: '#fff', borderWidth: 1.5, borderColor: '#E2E8F0',
   },
   tabBar: {
-    shadowColor: '#2563EB',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowColor: '#2563EB', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08, shadowRadius: 12, elevation: 4,
   },
   tab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    borderRadius: 10,
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    paddingVertical: 8, paddingHorizontal: 4, borderRadius: 10,
   },
   badge: {
-    marginLeft: 4,
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 4,
+    marginLeft: 4, minWidth: 18, height: 18, borderRadius: 9,
+    alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4,
   },
-  badgeText: {
-    fontFamily: 'OSans-Bold',
-    fontSize: 10,
-  },
+  badgeText: { fontFamily: 'OSans-Bold', fontSize: 10 },
   card: {
-    shadowColor: '#2563EB',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.07,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowColor: '#2563EB', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.07, shadowRadius: 8, elevation: 2,
   },
   btnShadow: {
-    shadowColor: '#2563EB',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowColor: '#2563EB', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4, shadowRadius: 8, elevation: 6,
   },
 });

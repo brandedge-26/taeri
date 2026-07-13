@@ -18,6 +18,7 @@ const adminData = {
     age: 30,
     livingSituation: "alone",
     isEmailVerified: true,
+    role: "admin",
 };
 
 try {
@@ -39,6 +40,7 @@ try {
                 age: adminData.age,
                 livingSituation: adminData.livingSituation,
                 isEmailVerified: adminData.isEmailVerified,
+                role: "admin",
             },
         },
         {

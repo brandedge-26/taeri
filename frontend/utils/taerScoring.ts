@@ -1,4 +1,4 @@
-import type { DurationCategory, FrequencyCategory, RiskLevel, StabilityLevel } from '@/types/assessment';
+import type { DurationCategory, FallRisk, FrequencyCategory, RiskLevel, StabilityLevel } from '@/types/assessment';
 
 // Adjustment factor table: duration rows × frequency columns
 // Columns: 1/week, 2/week, 3/week, 4-7/week
@@ -94,5 +94,37 @@ export function getRiskBg(level: RiskLevel): string {
     case 'green':  return '#D1FAE5';
     case 'yellow': return '#FEF3C7';
     case 'red':    return '#FEE2E2';
+  }
+}
+
+export function getFallRisk(stability: StabilityLevel): FallRisk {
+  switch (stability) {
+    case 'very_stable':       return 'low';
+    case 'somewhat_unsteady': return 'moderate';
+    case 'very_unsteady':     return 'high';
+  }
+}
+
+export function getFallRiskLabel(risk: FallRisk): string {
+  switch (risk) {
+    case 'low':      return 'Low';
+    case 'moderate': return 'Moderate';
+    case 'high':     return 'High';
+  }
+}
+
+export function getFallRiskColor(risk: FallRisk): string {
+  switch (risk) {
+    case 'low':      return '#10B981';
+    case 'moderate': return '#F59E0B';
+    case 'high':     return '#EF4444';
+  }
+}
+
+export function getFallRiskBg(risk: FallRisk): string {
+  switch (risk) {
+    case 'low':      return '#D1FAE5';
+    case 'moderate': return '#FEF3C7';
+    case 'high':     return '#FEE2E2';
   }
 }

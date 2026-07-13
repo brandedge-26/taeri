@@ -19,6 +19,7 @@ type Slide = {
   icon: keyof typeof Ionicons.glyphMap;
   title: string;
   highlight: string;
+  tagline?: string;
   subtitle: string;
   steps?: Step[];
 };
@@ -31,12 +32,8 @@ const slides: Slide[] = [
     icon: 'shield-checkmark',
     title: 'Welcome to',
     highlight: 'TAERI',
-    subtitle: 'Track your daily tasks, spot risks, and maintain your independence with personalized safety insights.',
-    steps: [
-      { icon: 'clipboard-outline', label: 'Log your daily activities' },
-      { icon: 'bar-chart-outline', label: 'Get personalized risk insights' },
-      { icon: 'shield-checkmark-outline', label: 'Stay safe & independent' },
-    ],
+    tagline: 'Predicting Risk. Preventing Fall. Protecting Independence.',
+    subtitle: 'TAERI (Task Assessment for Ease, Risk & Independence) is an innovative digital health platform that identifies fall risks and functional decline before serious incidents occur. By assessing everyday activities and environmental factors, it supports early intervention, promotes independent living, and helps improve the quality of life of older adults.',
   },
   {
     id: '2',
@@ -105,8 +102,15 @@ export default function OnboardingScreen() {
           <Text className="font-osbd text-primary">{item.highlight}</Text>
         </Text>
 
+        {/* Tagline */}
+        {item.tagline && (
+          <View className="bg-primary-50 rounded-xl px-4 py-2 mt-3">
+            <Text className="font-osbd text-primary text-sm text-center">{item.tagline}</Text>
+          </View>
+        )}
+
         {/* Subtitle */}
-        <Text className="font-osmd text-md text-text-secondary text-center mt-3 px-2">
+        <Text className="font-osmd text-xs text-text-secondary text-center mt-3 px-2" style={{ lineHeight: 18 }}>
           {item.subtitle}
         </Text>
       </View>

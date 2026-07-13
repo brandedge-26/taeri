@@ -1,5 +1,6 @@
 export type RiskLevel = 'green' | 'yellow' | 'red';
 export type StabilityLevel = 'very_stable' | 'somewhat_unsteady' | 'very_unsteady';
+export type FallRisk = 'low' | 'moderate' | 'high';
 
 export type FrequencyCategory = '1/week' | '2/week' | '3/week' | '4-7/week';
 export type DurationCategory = '<5' | '5-15' | '16-25' | '26-35' | '36-45' | '46-60' | '>60';
@@ -9,6 +10,7 @@ export interface Assessment {
   taskId: string;
   taskName: string;
   date: string; // ISO string
+  weekNumber: number;
   frequency: FrequencyCategory;
   duration: DurationCategory;
   // Psychological sub-scores

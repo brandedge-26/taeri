@@ -1,48 +1,36 @@
-# Dependencies
+# ── Dependencies ──────────────────────────────────────────────────────────────
 node_modules/
-/.pnp
-.pnp.js
 
-
-# CLaude
-.claude/
-
-# Environment variables
+# ── Environment variables ─────────────────────────────────────────────────────
 .env
 .env.local
 .env.*.local
+.env*
 
-# Testing
-/coverage
+# ── Backend scripts (seed, migrations, etc.) ──────────────────────────────────
+backend/src/scripts/
 
-# Build artifacts
-/build
-/dist
+# ── Claude config ─────────────────────────────────────────────────────────────
+.claude/settings.local.json
 
-# OS files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Expo
-.expo/
-.expo-shared/
-dist/
-
-# Logs
+# ── Logs ──────────────────────────────────────────────────────────────────────
 logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
+
+# ── OS files ──────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~

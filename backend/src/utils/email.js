@@ -232,13 +232,12 @@ const welcomeEmailTemplate = (userName) => {
 
 
 
-    
+
 
 // SEND OTP EMAIL
 export const sendOtpEmail = async ({ to, otp, expiresMinutes = 10 }) => {
 
     const tpl = otpEmailTemplate(otp, expiresMinutes);
-
 
     const mailOptions = {
         from: `"TAERI" <${ENV.SENDER_EMAIL}>`,
@@ -248,7 +247,13 @@ export const sendOtpEmail = async ({ to, otp, expiresMinutes = 10 }) => {
         html: tpl.html,
     };
 
-    return mailTransporter.sendMail(mailOptions);
+    return mailTransporter.sendMail({
+        from: `"TAERI" <${ENV.SENDER_EMAIL}>`,
+        to: to,
+        subject: tpl.subject,
+        text: tpl.text,
+        html: tpl.html,
+    });
 
 };
 
@@ -260,16 +265,13 @@ export const sendWelcomeEmail = async ({ to, name }) => {
 
     const tpl = welcomeEmailTemplate(name);
 
-
-    const mailOptions = {
+    return mailTransporter.sendMail({
         from: `"TAERI" <${ENV.SENDER_EMAIL}>`,
         to: to,
         subject: tpl.subject,
         text: tpl.text,
         html: tpl.html,
-    };
-
-    return mailTransporter.sendMail(mailOptions);
+    });
 
 };
 

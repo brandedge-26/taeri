@@ -1,5 +1,9 @@
 import type { DurationCategory, FrequencyCategory, RiskLevel, StabilityLevel } from '@/types/assessment';
 import {
+  getFallRisk,
+  getFallRiskBg,
+  getFallRiskColor,
+  getFallRiskLabel,
   getRiskBg,
   getRiskColor,
   getRiskLabel,
@@ -172,14 +176,14 @@ function SummaryScreen({
 
           {/* Score — very large */}
           <Text style={styles.summaryScoreNumber}>{finalScore}</Text>
-          <Text style={styles.summaryScoreLabel}>IADL Exposure Score</Text>
+          <Text style={styles.summaryScoreLabel}>Task Exposure Score</Text>
 
-          {/* TSL card */}
+          {/* Fall Risk card */}
           <View style={[styles.summaryTslCard, { width: '100%' }]}>
             <View style={styles.summaryTslRow}>
               <Ionicons name={stabilityIcon as any} size={18} color="#fff" />
-              <Text style={styles.summaryTslLabel}>TSL:</Text>
-              <Text style={styles.summaryTslValue}>{getStabilityLabel(stability)}</Text>
+              <Text style={styles.summaryTslLabel}>Fall Risk:</Text>
+              <Text style={styles.summaryTslValue}>{getFallRiskLabel(getFallRisk(stability))}</Text>
             </View>
             <Text style={styles.summaryTslDesc}>{getStabilityDescription(stability)}</Text>
           </View>
@@ -239,6 +243,7 @@ export default function ResultScreen() {
     adjustmentFactor: string;
     finalScore: string;
     riskLevel: string;
+    weekNumber?: string;
     readOnly?: string;
   }>();
 
@@ -269,6 +274,7 @@ export default function ResultScreen() {
       taskId: params.taskId,
       taskName: params.taskName,
       date: new Date().toISOString(),
+      weekNumber: parseInt(params.weekNumber ?? '1'),
       frequency: params.frequency as FrequencyCategory,
       duration: params.duration as DurationCategory,
       physicalDemand,
@@ -342,7 +348,7 @@ export default function ResultScreen() {
               <Text className="font-osbd text-lg" style={{ color: riskColor }}>{riskLabel}</Text>
             </View>
             <Text className="font-osbd text-4xl text-text">{finalScore}</Text>
-            <Text className="font-osmd text-text-secondary text-sm">IADL Exposure Score</Text>
+            <Text className="font-osmd text-text-secondary text-sm">Task Exposure Score</Text>
           </View>
 
           {/* Risk sentence */}
@@ -387,7 +393,7 @@ export default function ResultScreen() {
               <Text className="font-osbd text-text">× {params.adjustmentFactor}</Text>
             </View>
             <View className="flex-row items-center justify-between">
-              <Text className="font-osbd text-text">IADL Exposure Score</Text>
+              <Text className="font-osbd text-text">Task Exposure Score</Text>
               <Text className="font-osbd text-xl" style={{ color: riskColor }}>{finalScore}</Text>
             </View>
           </View>
@@ -403,26 +409,34 @@ export default function ResultScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Task Stability */}
-        <View className="mx-5 mt-4 bg-white rounded-2xl p-5" style={styles.cardShadow}>
-          <Text className="font-osbd text-text text-base mb-4">Task Stability Level (TSL)</Text>
-          <View className="flex-row items-center gap-4">
-            <View className="w-16 h-16 rounded-2xl items-center justify-center" style={{ backgroundColor: stabilityBg }}>
-              <Ionicons
-                name={stability === 'very_stable' ? 'shield-checkmark-outline' : stability === 'somewhat_unsteady' ? 'alert-outline' : 'warning-outline'}
-                size={32}
-                color={stabilityColor}
-              />
-            </View>
-            <View className="flex-1">
-              <View className="flex-row items-center gap-2 mb-1">
-                <View className="w-2 h-2 rounded-full" style={{ backgroundColor: stabilityColor }} />
-                <Text className="font-osbd text-base" style={{ color: stabilityColor }}>{getStabilityLabel(stability)}</Text>
+        {/* Fall Risk */}
+        {(() => {
+          const fallRisk = getFallRisk(stability);
+          const frColor = getFallRiskColor(fallRisk);
+          const frBg = getFallRiskBg(fallRisk);
+          return (
+            <View className="mx-5 mt-4 bg-white rounded-2xl p-5" style={styles.cardShadow}>
+              <Text className="font-osbd text-text text-base mb-4">Fall Risk</Text>
+              <View className="flex-row items-center gap-4">
+                <View className="w-16 h-16 rounded-2xl items-center justify-center" style={{ backgroundColor: frBg }}>
+                  <Ionicons
+                    name={stability === 'very_stable' ? 'shield-checkmark-outline' : stability === 'somewhat_unsteady' ? 'alert-outline' : 'warning-outline'}
+                    size={32}
+                    color={frColor}
+                  />
+                </View>
+                <View className="flex-1">
+                  <View className="flex-row items-center gap-2 mb-1">
+                    <View className="w-2 h-2 rounded-full" style={{ backgroundColor: frColor }} />
+                    <Text className="font-osbd text-base" style={{ color: frColor }}>{getFallRiskLabel(fallRisk)} Fall Risk</Text>
+                  </View>
+                  <Text className="font-osmd text-text-secondary text-xs mb-1">{getStabilityLabel(stability)}</Text>
+                  <Text className="font-osmd text-text-secondary text-sm leading-5">{getStabilityDescription(stability)}</Text>
+                </View>
               </View>
-              <Text className="font-osmd text-text-secondary text-sm leading-5">{getStabilityDescription(stability)}</Text>
             </View>
-          </View>
-        </View>
+          );
+        })()}
 
         {/* Risk scale reference */}
         <View className="mx-5 mt-4 bg-white rounded-2xl p-4" style={styles.cardShadow}>
@@ -592,12 +606,20 @@ export default function ResultScreen() {
                 </View>
               </View>
 
-              {/* Stability */}
-              <View className="rounded-xl p-4 mb-3" style={{ backgroundColor: stabilityBg }}>
-                <Text className="font-osbd mb-2" style={{ color: stabilityColor }}>Task Stability Level</Text>
-                <Text className="font-osbd text-sm mb-1" style={{ color: stabilityColor }}>{getStabilityLabel(stability)}</Text>
-                <Text className="font-osmd text-xs" style={{ color: stabilityColor }}>{getStabilityDescription(stability)}</Text>
-              </View>
+              {/* Fall Risk */}
+              {(() => {
+                const fr = getFallRisk(stability);
+                const frColor = getFallRiskColor(fr);
+                const frBg = getFallRiskBg(fr);
+                return (
+                  <View className="rounded-xl p-4 mb-3" style={{ backgroundColor: frBg }}>
+                    <Text className="font-osbd mb-2" style={{ color: frColor }}>Fall Risk</Text>
+                    <Text className="font-osbd text-sm mb-1" style={{ color: frColor }}>{getFallRiskLabel(fr)}</Text>
+                    <Text className="font-osmd text-xs mb-1" style={{ color: frColor }}>{getStabilityLabel(stability)}</Text>
+                    <Text className="font-osmd text-xs" style={{ color: frColor }}>{getStabilityDescription(stability)}</Text>
+                  </View>
+                );
+              })()}
 
               {/* Risk sentence */}
               <View className="rounded-xl p-4 mb-1" style={{ backgroundColor: riskBg }}>

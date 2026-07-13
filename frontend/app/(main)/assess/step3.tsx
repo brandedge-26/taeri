@@ -48,6 +48,7 @@ export default function Step3Screen() {
     wrist: string;
     back: string;
     leg: string;
+    weekNumber: string;
   }>();
 
   const [selected, setSelected] = useState<1 | 2 | 3 | null>(null);
@@ -75,7 +76,7 @@ export default function Step3Screen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 40, gap: 12 }}
+        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 16, gap: 12 }}
       >
         {/* Progress dots */}
         <View className="flex-row justify-center gap-2 mb-2">
@@ -84,7 +85,8 @@ export default function Step3Screen() {
           ))}
         </View>
 
-        <Text className="font-osmd text-text-secondary text-sm text-center mb-1">
+        <Text className="font-osbd text-text text-lg mb-1">Manual Handling</Text>
+        <Text className="font-osmd text-text-secondary text-sm mb-1">
           Lifting/lowering, pushing/pulling and carrying
         </Text>
 
@@ -116,6 +118,10 @@ export default function Step3Screen() {
           </TouchableOpacity>
         ))}
 
+      </ScrollView>
+
+      {/* Sticky footer button */}
+      <View style={{ paddingHorizontal: 20, paddingBottom: 24, paddingTop: 8 }}>
         <TouchableOpacity
           onPress={handleNext}
           disabled={!selected}
@@ -126,7 +132,7 @@ export default function Step3Screen() {
           <Text className="font-osbd text-white text-lg">Continue</Text>
           <Ionicons name="arrow-forward" size={20} color="#fff" />
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

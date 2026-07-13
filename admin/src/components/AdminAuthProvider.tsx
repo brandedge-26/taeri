@@ -1,0 +1,29 @@
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAdminAuthStore } from "@/store/adminAuthStore";
+
+export default function AdminAuthProvider({ children }: { children: React.ReactNode }) {
+  const { initAuth, isAuthenticated, isInitialized } = useAdminAuthStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isInitialized) initAuth();
+  }, []);
+
+  useEffect(() => {
+    if (isInitialized && !isAuthenticated) router.replace("/login");
+  }, [isInitialized, isAuthenticated]);
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return null;
+
+  return <>{children}</>;
+}

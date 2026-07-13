@@ -23,6 +23,7 @@ export default function Step1Screen() {
     taskName: string;
     frequency: string;
     duration: string;
+    weekNumber: string;
   }>();
 
   const [open, setOpen] = useState(true);
@@ -59,7 +60,7 @@ export default function Step1Screen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 40, gap: 14 }}
+        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 16, gap: 14 }}
       >
         {/* Progress dots */}
         <View className="flex-row justify-center gap-2 mb-2">
@@ -197,7 +198,10 @@ export default function Step1Screen() {
           )}
         </View>
 
-        {/* Continue */}
+      </ScrollView>
+
+      {/* Sticky footer button */}
+      <View style={{ paddingHorizontal: 20, paddingBottom: 24, paddingTop: 8 }}>
         <TouchableOpacity
           onPress={handleNext}
           disabled={!canContinue}
@@ -208,7 +212,7 @@ export default function Step1Screen() {
           <Text className="font-osbd text-white text-lg">Continue</Text>
           <Ionicons name="arrow-forward" size={20} color="#fff" />
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

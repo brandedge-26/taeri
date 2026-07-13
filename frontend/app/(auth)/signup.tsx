@@ -49,7 +49,7 @@ export default function SignupScreen() {
       livingSituation: living!,
     });
     if (success) {
-      router.replace('/(auth)/otp');
+      router.replace('/(main)/home');
     }
   }
 

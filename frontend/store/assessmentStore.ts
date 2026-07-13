@@ -3,7 +3,7 @@ import axios from 'axios';
 import { create } from 'zustand';
 import { useAuthStore } from './authStore';
 
-const BASE_URL = 'https://respectful-adaptation-production-6e01.up.railway.app/api';
+const BASE_URL = 'http://192.168.100.23:5000/api';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -57,6 +57,7 @@ function mapAssessment(raw: any): Assessment {
     adjustmentFactor: raw.adjustmentFactor,
     finalScore: raw.finalScore,
     riskLevel: raw.riskLevel as RiskLevel,
+    weekNumber: raw.weekNumber ?? 1,
   };
 }
 

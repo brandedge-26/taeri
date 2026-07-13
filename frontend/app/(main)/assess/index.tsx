@@ -1,9 +1,12 @@
 import type { Task } from '@/types/assessment';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -33,6 +36,26 @@ export default function TaskSelectionScreen() {
   const [customVisible, setCustomVisible] = useState(false);
   const [customName, setCustomName] = useState('');
   const inputRef = useRef<TextInput>(null);
+  const [weekNumber, setWeekNumber] = useState<number>(1);
+
+  useEffect(() => {
+    async function loadWeek() {
+      try {
+        const stored = await AsyncStorage.getItem('taeri_week_start');
+        if (!stored) {
+          await AsyncStorage.setItem('taeri_week_start', new Date().toISOString());
+          setWeekNumber(1);
+        } else {
+          const msElapsed = Date.now() - new Date(stored).getTime();
+          const week = Math.floor(msElapsed / (7 * 24 * 60 * 60 * 1000)) + 1;
+          setWeekNumber(week);
+        }
+      } catch {
+        setWeekNumber(1);
+      }
+    }
+    loadWeek();
+  }, []);
 
   function selectTask(task: Task) {
     if (task.id === 'custom') {
@@ -46,7 +69,7 @@ export default function TaskSelectionScreen() {
   function navigate(taskId: string, taskName: string) {
     router.push({
       pathname: '/(main)/assess/details',
-      params: { taskId, taskName },
+      params: { taskId, taskName, weekNumber: String(weekNumber) },
     });
   }
 
@@ -64,6 +87,10 @@ export default function TaskSelectionScreen() {
         <Text className="font-osmd text-white/70 text-sm mb-1">Step 1 of 6</Text>
         <Text className="font-osbd text-white text-2xl">Select a Task</Text>
         <Text className="font-osmd text-white/70 text-sm mt-1">Which household task did you do?</Text>
+        <View className="flex-row items-center gap-2 mt-3 self-start rounded-xl px-3 py-1.5" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+          <Ionicons name="calendar-outline" size={14} color="#fff" />
+          <Text className="font-osbd text-white text-sm">Week #{weekNumber}</Text>
+        </View>
       </View>
 
       <ScrollView
@@ -96,6 +123,10 @@ export default function TaskSelectionScreen() {
         onRequestClose={() => setCustomVisible(false)}
         onShow={() => setTimeout(() => inputRef.current?.focus(), 100)}
       >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
 
@@ -142,6 +173,7 @@ export default function TaskSelectionScreen() {
 
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </SafeAreaView>
   );

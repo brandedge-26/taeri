@@ -1,5 +1,5 @@
 import type { DurationCategory, FrequencyCategory, StabilityLevel } from '@/types/assessment';
-import { calculateFinalScore } from '@/utils/taerScoring';
+import { calculateFinalScore, getFallRisk, getFallRiskBg, getFallRiskColor, getFallRiskLabel } from '@/utils/taerScoring';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -55,6 +55,7 @@ export default function Step4Screen() {
     back: string;
     leg: string;
     handling: string;
+    weekNumber: string;
   }>();
 
   const [stability, setStability] = useState<StabilityLevel | null>(null);
@@ -112,7 +113,7 @@ export default function Step4Screen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 40, gap: 12 }}
+        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 16, gap: 12 }}
       >
         {/* Progress dots — all filled (last step) */}
         <View className="flex-row justify-center gap-2 mb-2">
@@ -121,7 +122,12 @@ export default function Step4Screen() {
           ))}
         </View>
 
-        {STABILITY_OPTIONS.map((opt) => (
+        <Text className="font-osbd text-text text-lg mb-0">Stability During Task Performance</Text>
+        <Text className="font-osmd text-text-secondary text-sm mb-1">How stable did you feel while performing the task?</Text>
+
+        {STABILITY_OPTIONS.map((opt) => {
+          const fallRisk = getFallRisk(opt.value);
+          return (
           <TouchableOpacity
             key={opt.value}
             onPress={() => setStability(opt.value)}
@@ -136,25 +142,34 @@ export default function Step4Screen() {
               <View className="flex-1">
                 <Text className="font-osbd text-text text-base">{opt.label}</Text>
               </View>
+              <View className="px-3 py-1 rounded-full" style={{ backgroundColor: getFallRiskBg(fallRisk) }}>
+                <Text className="font-osbd text-xs" style={{ color: getFallRiskColor(fallRisk) }}>
+                  Fall Risk: {getFallRiskLabel(fallRisk)}
+                </Text>
+              </View>
               {stability === opt.value && (
                 <Ionicons name="checkmark-circle" size={24} color="#2563EB" />
               )}
             </View>
             <Text className="font-osmd text-text-secondary text-sm">{opt.description}</Text>
           </TouchableOpacity>
-        ))}
+        );
+        })}
+      </ScrollView>
 
+      {/* Sticky footer button */}
+      <View style={{ paddingHorizontal: 20, paddingBottom: 24, paddingTop: 8 }}>
         <TouchableOpacity
           onPress={handleCalculate}
           disabled={!stability}
           activeOpacity={0.86}
-          className={`rounded-2xl py-4 items-center flex-row justify-center gap-2 mt-2 ${stability ? 'bg-primary' : 'bg-primary-300'}`}
+          className={`rounded-2xl py-4 items-center flex-row justify-center gap-2 ${stability ? 'bg-primary' : 'bg-primary-300'}`}
           style={stability ? styles.btnShadow : undefined}
         >
           <Ionicons name="calculator-outline" size={20} color="#fff" />
           <Text className="font-osbd text-white text-lg">Calculate Risk Score</Text>
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

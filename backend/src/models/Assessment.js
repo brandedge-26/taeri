@@ -82,6 +82,11 @@ const assessmentSchema = new mongoose.Schema(
             enum: ["green", "yellow", "red"],
             required: true,
         },
+
+        weekNumber: {
+            type: Number,
+            default: 1,
+        },
     },
     {
         timestamps: true,

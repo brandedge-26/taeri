@@ -11,6 +11,8 @@ export default function Index() {
   // Naya user hai? Seedha onboarding pe bhejo
   useEffect(() => {
     async function checkOnboarding() {
+      // DEV: onboarding test ke liye — baad mein wapas comment karo
+      await AsyncStorage.removeItem('onboarding_done');
       const onboardingDone = await AsyncStorage.getItem('onboarding_done');
       if (!onboardingDone) {
         router.replace('/(onboarding)');

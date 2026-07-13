@@ -7,6 +7,7 @@ import { connectDB } from "./config/db.js";
 import { globalErrorHandler } from "./middlewares/error.middleware.js";
 import { authRoutes } from "./routes/auth.routes.js";
 import { assessmentRoutes } from "./routes/assessment.routes.js";
+import { adminRoutes } from "./routes/admin.routes.js";
 import { otpEmailTemplate, welcomeEmailTemplate } from "./utils/email.js";
 import "./passport/auth.passport.js";
 
@@ -48,7 +49,7 @@ app.use(sanitizeInput);
 
 // CORS CONFIGURATION
 app.use(cors({
-    origin: "*",
+    origin: ["http://localhost:3000", "http://localhost:3001"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -93,6 +94,7 @@ app.get("/api/email-preview/:type", (req, res) => {
 // ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/assessments", assessmentRoutes);
+app.use("/api/admin", adminRoutes);
 
 
 

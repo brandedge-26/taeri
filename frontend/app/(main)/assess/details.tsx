@@ -24,7 +24,7 @@ const DURATIONS: { value: DurationCategory; label: string }[] = [
 
 export default function TaskDetailsScreen() {
   const router = useRouter();
-  const { taskId, taskName } = useLocalSearchParams<{ taskId: string; taskName: string }>();
+  const { taskId, taskName, weekNumber } = useLocalSearchParams<{ taskId: string; taskName: string; weekNumber: string }>();
 
   const [frequency, setFrequency] = useState<FrequencyCategory | null>(null);
   const [duration, setDuration] = useState<DurationCategory | null>(null);
@@ -33,7 +33,7 @@ export default function TaskDetailsScreen() {
     if (!frequency || !duration) return;
     router.push({
       pathname: '/(main)/assess/step1',
-      params: { taskId, taskName, frequency, duration },
+      params: { taskId, taskName, frequency, duration, weekNumber },
     });
   }
 
@@ -52,8 +52,11 @@ export default function TaskDetailsScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 40 }}
+        contentContainerStyle={{ padding: 20, paddingTop: 24, paddingBottom: 16 }}
       >
+        {/* Section heading */}
+        <Text className="font-osbd text-text text-lg mb-4">Frequency & Duration of a Task</Text>
+
         {/* Frequency */}
         <Text className="font-osbd text-text text-base mb-3">How often per week?</Text>
         <View className="gap-2 mb-6">
@@ -108,19 +111,21 @@ export default function TaskDetailsScreen() {
           ))}
         </View>
 
-        {/* Next button */}
+      </ScrollView>
+
+      {/* Sticky footer button */}
+      <View style={{ paddingHorizontal: 20, paddingBottom: 24, paddingTop: 8 }}>
         <TouchableOpacity
           onPress={handleNext}
           disabled={!frequency || !duration}
           activeOpacity={0.86}
-          className={`rounded-2xl py-4 items-center flex-row justify-center gap-2 ${frequency && duration ? 'bg-primary' : 'bg-primary-300'
-            }`}
+          className={`rounded-2xl py-4 items-center flex-row justify-center gap-2 ${frequency && duration ? 'bg-primary' : 'bg-primary-300'}`}
           style={frequency && duration ? styles.btnShadow : undefined}
         >
           <Text className="font-osbd text-white text-lg">Continue</Text>
           <Ionicons name="arrow-forward" size={20} color="#fff" />
         </TouchableOpacity>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
