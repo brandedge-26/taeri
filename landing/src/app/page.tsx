@@ -176,6 +176,63 @@ export default function Home() {
 
         </div>
       </section>
+      {/* Doctor Dashboard */}
+      <section className="bg-gray-50 border-t border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 sm:px-10 py-16 sm:py-20 lg:py-24">
+
+          <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+
+            {/* Left — text */}
+            <div className="flex-1 max-w-xl">
+              <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">For Clinicians & Caregivers</p>
+              <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-gray-900 leading-[1.15] tracking-tight mb-6">
+                Everything your care team needs —
+                <span className="text-primary"> in one place.</span>
+              </h2>
+              <p className="text-base sm:text-lg text-gray-500 leading-relaxed mb-8">
+                The TAERI clinician dashboard gives doctors and caregivers a real-time
+                view of every patient's fall risk. Monitor assessments, track risk trends,
+                and act before an incident occurs — all without leaving your desk.
+              </p>
+
+              <ul className="space-y-4">
+                {[
+                  { title: "Live patient risk scores", desc: "See every patient's latest assessment result and overall risk classification at a glance." },
+                  { title: "High-risk alerts", desc: "Get instantly notified when a patient's score crosses the high-risk threshold so no case is missed." },
+                  { title: "Assessment history & trends", desc: "Review a patient's full assessment timeline to identify declining mobility or improving outcomes." },
+                ].map((item) => (
+                  <li key={item.title} className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0 mt-0.5">
+                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                      <p className="text-sm text-gray-400 mt-0.5">{item.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Right — dashboard image */}
+            <div className="flex-1 w-full">
+              <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-xl">
+                <Image
+                  src="/doctor-dashboard.png"
+                  alt="TAERI clinician dashboard"
+                  width={1200}
+                  height={800}
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* How It Works */}
       <section id="how-it-works" className="bg-gray-50 border-t border-gray-200">
         <div className="max-w-6xl mx-auto px-6 sm:px-10 py-16 sm:py-20 lg:py-24">
@@ -193,7 +250,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
             {/* Step 1 */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4 overflow-hidden">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Step 01</span>
                 <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
@@ -208,10 +265,13 @@ export default function Home() {
                   The patient or caregiver creates a profile with basic health and demographic details.
                 </p>
               </div>
+              <div className="mt-2 rounded-xl overflow-hidden border border-gray-100">
+                <Image src="/taeri-app-images/signup.png" alt="Sign up screen" width={400} height={300} className="w-full h-auto object-cover" />
+              </div>
             </div>
 
             {/* Step 2 */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4 overflow-hidden">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Step 02</span>
                 <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
@@ -226,10 +286,13 @@ export default function Home() {
                   TAERI guides the patient through a structured 4-step task assessment covering posture, balance, and mobility.
                 </p>
               </div>
+              <div className="mt-2 rounded-xl overflow-hidden border border-gray-100">
+                <Image src="/taeri-app-images/assess_step.png" alt="Assessment step" width={400} height={300} className="w-full h-auto object-cover" />
+              </div>
             </div>
 
             {/* Step 3 */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4 overflow-hidden">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Step 03</span>
                 <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
@@ -244,10 +307,13 @@ export default function Home() {
                   TAERI instantly computes a weighted risk index across 10+ sub-scores and classifies the patient as Low, Moderate, or High risk.
                 </p>
               </div>
+              <div className="mt-2 rounded-xl overflow-hidden border border-gray-100">
+                <Image src="/taeri-app-images/assess-result.png" alt="Risk score result" width={400} height={300} className="w-full h-auto object-cover" />
+              </div>
             </div>
 
             {/* Step 4 */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6 flex flex-col gap-4 overflow-hidden">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Step 04</span>
                 <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
@@ -262,6 +328,9 @@ export default function Home() {
                 <p className="text-sm text-gray-400 leading-relaxed">
                   Results appear on the caregiver dashboard in real time so high-risk patients can be prioritized and interventions planned quickly.
                 </p>
+              </div>
+              <div className="mt-2 rounded-xl overflow-hidden border border-gray-100">
+                <Image src="/taeri-app-images/analytics.png" alt="Analytics dashboard" width={400} height={300} className="w-full h-auto object-cover" />
               </div>
             </div>
 
@@ -283,6 +352,41 @@ export default function Home() {
 
         </div>
       </section>
+      {/* App Screenshots */}
+      <section className="bg-white border-t border-gray-200 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 sm:px-10 py-16 sm:py-20">
+
+          <div className="mb-10">
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-4">App Preview</p>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-[1.15] tracking-tight">
+              See TAERI in action.
+            </h2>
+          </div>
+
+          {/* Scrollable phone gallery */}
+          <div className="flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide -mx-6 px-6 sm:-mx-10 sm:px-10">
+            {[
+              { src: "/taeri-app-images/onboarding-1.png", label: "Welcome" },
+              { src: "/taeri-app-images/onboarding-2.png", label: "Onboarding" },
+              { src: "/taeri-app-images/home.png",         label: "Home" },
+              { src: "/taeri-app-images/assess_step.png",  label: "Assessment" },
+              { src: "/taeri-app-images/assess-result.png",label: "Risk Result" },
+              { src: "/taeri-app-images/assess_history.png",label: "History" },
+              { src: "/taeri-app-images/analytics.png",    label: "Analytics" },
+              { src: "/taeri-app-images/profile.png",      label: "Profile" },
+            ].map(({ src, label }) => (
+              <div key={src} className="flex flex-col items-center gap-3 shrink-0 snap-start">
+                <div className="w-[160px] sm:w-[180px] rounded-[28px] overflow-hidden border border-gray-200 shadow-lg">
+                  <Image src={src} alt={label} width={400} height={800} className="w-full h-auto" />
+                </div>
+                <span className="text-xs font-semibold text-gray-400">{label}</span>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
       {/* Features */}
       <section id="features" className="bg-gray-50 border-t border-gray-200">
         <div className="max-w-6xl mx-auto px-6 sm:px-10 py-16 sm:py-20 lg:py-24">

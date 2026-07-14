@@ -12,7 +12,7 @@ if (!DB_URL) {
 
 const adminData = {
     name: "admin",
-    email: "admin@taeri.local",
+    email: "admin@taeri.com",
     password: "admin-123",
     provider: "local",
     age: 30,

@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   title: "TAERI — Telehealth Ergonomic Assessment & Risk Index",
   description:
     "AI-powered ergonomic fall-risk assessment designed for elderly patients and healthcare professionals.",
+  icons: { icon: "/favicon.png" },
 };
 
 export default function RootLayout({

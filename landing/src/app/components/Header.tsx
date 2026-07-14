@@ -42,11 +42,11 @@ export default function Header() {
 
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <a href="#" className="text-sm text-gray-600 hover:text-gray-900 transition-colors px-4 py-2 rounded-full border border-gray-200 hover:border-gray-300">
-            Sign In
-          </a>
-          <a href="#" className="text-sm font-semibold text-white bg-primary hover:bg-primary-dark transition-colors px-5 py-2 rounded-full">
-            Get Started
+          <a href="#" className="flex items-center gap-2 text-sm font-semibold text-white bg-primary hover:bg-primary-dark transition-colors px-5 py-2 rounded-full">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download App
           </a>
         </div>
 
@@ -85,9 +85,13 @@ export default function Header() {
               {link.label}
             </a>
           ))}
-          <div className="pt-3 border-t border-gray-200 flex flex-col gap-2">
-            <a href="#" className="block text-center py-2.5 text-sm text-gray-600 border border-gray-200 rounded-full hover:border-gray-300 transition-colors">Sign In</a>
-            <a href="#" className="block text-center py-2.5 text-sm font-semibold text-white bg-primary rounded-full hover:bg-primary-dark transition-colors">Get Started</a>
+          <div className="pt-3 border-t border-gray-200">
+            <a href="#" className="flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white bg-primary rounded-full hover:bg-primary-dark transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download App
+            </a>
           </div>
         </div>
       </div>

@@ -16,6 +16,7 @@ const osans = localFont({
 export const metadata: Metadata = {
   title: "TAERI Admin",
   description: "TAERI Admin Dashboard",
+  icons: { icon: "/favicon.png" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

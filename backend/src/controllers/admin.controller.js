@@ -205,6 +205,60 @@ export const adminGetAtRiskPatientsController = async (req, res, next) => {
     }
 };
 
+// Change Admin Password
+export const adminChangePasswordController = async (req, res, next) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ message: "Both fields are required." });
+        }
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: "New password must be at least 6 characters." });
+        }
+
+        const admin = await User.findById(req.user.id);
+        if (!admin) return res.status(404).json({ message: "Admin not found." });
+
+        const isMatch = await bcrypt.compare(currentPassword, admin.password);
+        if (!isMatch) return res.status(401).json({ message: "Current password is incorrect." });
+
+        admin.password = await bcrypt.hash(newPassword, 10);
+        await admin.save();
+
+        return res.status(200).json({ success: true, message: "Password updated successfully." });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// Get High-Risk Alerts (red assessments with user info)
+export const adminGetAlertsController = async (req, res, next) => {
+    try {
+        const alerts = await Assessment.find({ riskLevel: "red" })
+            .sort({ createdAt: -1 })
+            .populate("userId", "name email age livingSituation")
+            .limit(200);
+
+        const result = alerts.map(a => ({
+            _id: a._id,
+            taskName: a.taskName,
+            finalScore: a.finalScore,
+            riskLevel: a.riskLevel,
+            stability: a.stability,
+            weekNumber: a.weekNumber,
+            date: a.date,
+            createdAt: a.createdAt,
+            user: a.userId
+                ? { _id: a.userId._id, name: a.userId.name, email: a.userId.email, age: a.userId.age, livingSituation: a.userId.livingSituation }
+                : null,
+        }));
+
+        return res.status(200).json({ success: true, alerts: result, total: result.length });
+    } catch (err) {
+        next(err);
+    }
+};
+
 // Delete Assessment
 export const adminDeleteAssessmentController = async (req, res, next) => {
     try {

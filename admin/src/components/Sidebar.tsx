@@ -1,7 +1,9 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { useAdminStore } from "@/store/adminStore";
+import { useAdminAuthStore } from "@/store/adminAuthStore";
 
 type NavItem = { label: string; href: string; icon: React.ReactNode };
 type NavGroup = { group: string; items: NavItem[] };
@@ -46,6 +48,15 @@ const NAV: NavGroup[] = [
           </svg>
         ),
       },
+      {
+        label: "Alerts",
+        href: "/alerts",
+        icon: (
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+        ),
+      },
     ],
   },
   {
@@ -67,7 +78,9 @@ const NAV: NavGroup[] = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { sidebarCollapsed, toggleSidebar } = useAdminStore();
+  const logout = useAdminAuthStore((s) => s.logout);
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";
@@ -89,14 +102,10 @@ export default function Sidebar() {
         {/* Logo */}
         <div className={`flex items-center gap-3 px-4 h-16 border-b border-slate-800 shrink-0 ${sidebarCollapsed ? "lg:justify-center" : ""}`}>
           {sidebarCollapsed ? (
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-              <span className="text-white text-xs font-bold">T</span>
-            </div>
+            <Image src="/favicon.png" alt="TAERI" width={32} height={32} className="w-8 h-8 rounded-lg shrink-0" />
           ) : (
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shrink-0">
-                <span className="text-white text-xs font-bold">T</span>
-              </div>
+              <Image src="/favicon.png" alt="TAERI" width={32} height={32} className="w-8 h-8 rounded-lg shrink-0" />
               <div>
                 <p className="text-white font-bold text-sm tracking-widest">TAERI</p>
                 <p className="text-slate-400 text-[10px]">Admin Panel</p>
@@ -142,17 +151,17 @@ export default function Sidebar() {
           ))}
         </nav>
 
-        {/* Bottom user badge */}
+        {/* Bottom logout */}
         <div className={`px-3 pb-4 border-t border-slate-800 pt-4 ${sidebarCollapsed ? "lg:px-2" : ""}`}>
-          <div className={`flex items-center gap-3 ${sidebarCollapsed ? "lg:justify-center" : ""}`}>
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold shrink-0">TA</div>
-            {!sidebarCollapsed && (
-              <div className="min-w-0">
-                <p className="text-white text-sm font-semibold truncate">TAERI Admin</p>
-                <p className="text-slate-400 text-[11px] truncate">admin@taeri.local</p>
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => { logout(); router.replace("/login"); }}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-red-500/20 transition-all ${sidebarCollapsed ? "lg:justify-center" : ""}`}
+          >
+            <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            {!sidebarCollapsed && <span>Sign Out</span>}
+          </button>
         </div>
       </aside>
     </>
