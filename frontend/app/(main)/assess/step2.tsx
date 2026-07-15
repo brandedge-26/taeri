@@ -24,8 +24,8 @@ const POSTURE_IMAGES = {
   back3: require('../../../assets/images/postures/img14.png'),
   // Leg
   leg1: require('../../../assets/images/postures/img9.png'),
-  leg2: require('../../../assets/images/postures/img10.png'),
-  leg3: require('../../../assets/images/postures/img10.png'), // reused — no separate img
+  leg2: require('../../../assets/images/postures/one-or-both-legs-bent.png'),
+  leg3: require('../../../assets/images/postures/legs-unsuppoerted-30-bend.png'),
 };
 
 type Score = 1 | 2 | 3;
@@ -305,6 +305,7 @@ const styles = StyleSheet.create({
   postureImg: {
     width: 58,
     height: 58,
+    mixBlendMode: 'multiply' as any,
   },
   btnShadow: {
     shadowColor: '#2563EB',
