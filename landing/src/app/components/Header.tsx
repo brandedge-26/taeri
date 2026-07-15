@@ -3,9 +3,13 @@ import { useState } from "react";
 import Image from "next/image";
 
 const NAV_LINKS = [
-  { label: "Features", href: "#features" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "About", href: "#about" },
+  { label: "How it works", href: "#how-it-works" },
+  { label: "The App", href: "#app" },
+  { label: "Try the Score", href: "#simulator" },
+  { label: "Research", href: "#research" },
+  { label: "Who it's for", href: "#benefits" },
+  { label: "Roadmap", href: "#roadmap" },
+  { label: "FAQ", href: "#faq" },
 ];
 
 export default function Header() {
@@ -28,12 +32,12 @@ export default function Header() {
         </a>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6">
+        <nav className="hidden md:flex items-center gap-3 lg:gap-5">
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-xs lg:text-sm text-gray-600 hover:text-gray-900 transition-colors whitespace-nowrap"
             >
               {link.label}
             </a>

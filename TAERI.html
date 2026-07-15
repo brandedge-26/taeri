@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAERI — From Domestic Ergonomic Research to Proactive Telehealth</title>
+<meta name="description" content="TAERI digitises the validated TAER methodology into a proactive telehealth platform that spots injury and fall risk in everyday home tasks before they happen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16302c;
+    --ink-soft:#3c534d;
+    --paper:#f6f1e6;
+    --paper-alt:#eee5d2;
+    --panel:#ffffff;
+    --teal:#1f6f63;
+    --teal-dark:#123f38;
+    --teal-tint:#e3efe9;
+    --gold:#b98634;
+    --gold-tint:#f6e9d2;
+    --line:#d9cfb8;
+    --risk-low:#3c8f52;
+    --risk-mod:#c98c22;
+    --risk-high:#bd4132;
+    --radius:14px;
+    --serif:'Fraunces', serif;
+    --sans:'Inter', sans-serif;
+    --mono:'IBM Plex Mono', monospace;
+    --shadow: 0 18px 40px -18px rgba(18,63,56,0.22);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--sans);
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold-tint); color:var(--teal-dark);}
+  a{color:inherit;}
+  img{max-width:100%; display:block;}
+  .wrap{max-width:1140px; margin:0 auto; padding:0 28px;}
+  section{padding:108px 0;}
+  h1,h2,h3,h4{font-family:var(--serif); font-weight:600; color:var(--teal-dark); line-height:1.14; letter-spacing:-0.01em;}
+  h2{font-size:clamp(2rem, 3.4vw, 2.7rem); margin-bottom:18px;}
+  h3{font-size:1.32rem; margin-bottom:10px;}
+  p{color:var(--ink-soft); font-size:1.04rem;}
+  .eyebrow{
+    font-family:var(--mono); font-size:0.72rem; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--teal); display:inline-flex; align-items:center; gap:8px; margin-bottom:16px; font-weight:600;
+  }
+  .eyebrow::before{content:''; width:22px; height:1px; background:var(--teal);}
+  .lede{max-width:640px; font-size:1.14rem;}
+  .center{text-align:center; margin-left:auto; margin-right:auto;}
+  .btn{
+    display:inline-flex; align-items:center; gap:9px; padding:14px 26px; border-radius:100px;
+    font-weight:600; font-size:0.96rem; text-decoration:none; border:1px solid transparent; cursor:pointer;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+  }
+  .btn-primary{background:var(--teal); color:#fff;}
+  .btn-primary:hover{background:var(--teal-dark); transform:translateY(-2px); box-shadow:var(--shadow);}
+  .btn-ghost{border-color:var(--teal); color:var(--teal); background:transparent;}
+  .btn-ghost:hover{background:var(--teal-tint); transform:translateY(-2px);}
+  .btn-light{background:#fff; color:var(--teal-dark);}
+  .btn-light:hover{transform:translateY(-2px); box-shadow:0 12px 26px -14px rgba(0,0,0,0.35);}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky; top:0; z-index:100; background:rgba(246,241,230,0.92); backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex; align-items:center; justify-content:space-between; padding:18px 0;}
+  .brand{display:flex; align-items:center; gap:10px; text-decoration:none;}
+  .brand-mark{width:34px; height:34px; position:relative; flex-shrink:0;}
+  .brand-mark span{position:absolute; width:9px; height:9px; border-radius:50%;}
+  .brand-mark .d1{background:var(--risk-low); top:1px; left:12px;}
+  .brand-mark .d2{background:var(--risk-mod); bottom:5px; left:2px;}
+  .brand-mark .d3{background:var(--risk-high); bottom:5px; right:2px;}
+  .brand-word{font-family:var(--serif); font-weight:700; font-size:1.36rem; color:var(--teal-dark);}
+  .brand-word em{font-style:normal; color:var(--gold);}
+  nav.links{display:flex; gap:30px; list-style:none;}
+  nav.links a{text-decoration:none; font-size:0.93rem; font-weight:500; color:var(--ink-soft);}
+  nav.links a:hover{color:var(--teal);}
+  .nav-cta{display:flex; gap:12px; align-items:center;}
+  .menu-btn{display:none; background:none; border:none; font-size:1.4rem; color:var(--teal-dark); cursor:pointer;}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:88px 0 60px;}
+  .hero .wrap{display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:center;}
+  .hero h1{font-size:clamp(2.5rem, 4.6vw, 3.6rem); margin-bottom:22px;}
+  .hero .lede{margin-bottom:32px;}
+  .hero-cta{display:flex; gap:14px; flex-wrap:wrap;}
+  .stat-row{display:flex; gap:34px; margin-top:46px; flex-wrap:wrap;}
+  .stat-row .stat b{display:block; font-family:var(--serif); font-size:2rem; color:var(--teal-dark);}
+  .stat-row .stat span{font-size:0.82rem; color:var(--ink-soft); font-family:var(--mono); letter-spacing:.02em;}
+
+  .hero-panel{
+    background:var(--panel); border-radius:20px; box-shadow:var(--shadow); padding:26px; border:1px solid var(--line);
+  }
+  .hero-panel .panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;}
+  .hero-panel .panel-head b{font-family:var(--mono); font-size:0.78rem; letter-spacing:.08em; color:var(--ink-soft); text-transform:uppercase;}
+  .task-row{display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px dashed var(--line); font-size:0.95rem;}
+  .task-row:last-child{border-bottom:none;}
+  .task-row .name{display:flex; align-items:center; gap:10px; font-weight:600; color:var(--ink);}
+  .dot{width:11px; height:11px; border-radius:50%; display:inline-block; flex-shrink:0;}
+  .dot.g{background:var(--risk-low);} .dot.y{background:var(--risk-mod);} .dot.r{background:var(--risk-high);}
+  .tag{font-family:var(--mono); font-size:0.72rem; padding:3px 10px; border-radius:20px; font-weight:600;}
+  .tag.g{background:#e3f2e6; color:var(--risk-low);} .tag.y{background:#f8ecd6; color:var(--risk-mod);} .tag.r{background:#f7e2de; color:var(--risk-high);}
+
+  /* ---------- SECTION BACKDROPS ---------- */
+  .alt{background:var(--paper-alt);}
+  .ink-section{background:var(--teal-dark); color:#f0ece0;}
+  .ink-section h2, .ink-section h3{color:#fff;}
+  .ink-section p{color:#c7d8d2;}
+
+  /* ---------- PROBLEM ---------- */
+  .problem-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:26px; margin-top:44px;}
+  .problem-card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:30px;}
+  .problem-card .num{font-family:var(--mono); color:var(--gold); font-size:0.8rem; letter-spacing:.08em;}
+
+  /* ---------- HOW IT WORKS + DIAGRAM ---------- */
+  .flow{display:grid; grid-template-columns:280px 1fr; gap:0; margin-top:52px; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--panel);}
+  .flow-step{padding:26px 30px; border-bottom:1px solid var(--line); position:relative;}
+  .flow-step:last-child{border-bottom:none;}
+  .flow-step .stepno{font-family:var(--mono); font-size:0.75rem; color:var(--teal); letter-spacing:.1em;}
+  .flow-detail{padding:26px 30px; border-bottom:1px solid var(--line); background:var(--teal-tint);}
+  .flow-detail:last-child{border-bottom:none;}
+  .flow-detail ul{padding-left:18px; color:var(--ink-soft); font-size:0.94rem;}
+  .flow-detail li{margin-bottom:5px;}
+  .flow-detail .hl{color:var(--teal-dark); font-weight:700;}
+
+  /* ---------- COMPARE TABLE (Traditional vs TAERI) ---------- */
+  .compare{display:grid; grid-template-columns:1fr auto 1fr; gap:0; margin-top:44px; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:var(--panel);}
+  .compare-col{padding:28px 30px;}
+  .compare-col.old{background:var(--paper-alt);}
+  .compare-col.new{background:var(--teal-tint);}
+  .compare-head{font-family:var(--mono); font-size:0.74rem; letter-spacing:.08em; text-transform:uppercase; font-weight:700; margin-bottom:18px;}
+  .compare-col.old .compare-head{color:var(--ink-soft);}
+  .compare-col.new .compare-head{color:var(--teal-dark);}
+  .compare-row{display:flex; align-items:center; gap:10px; padding:10px 0; font-size:0.95rem; border-bottom:1px dashed rgba(0,0,0,0.08);}
+  .compare-row:last-child{border-bottom:none;}
+  .compare-col.old .compare-row{color:var(--ink-soft);}
+  .compare-col.new .compare-row{color:var(--teal-dark); font-weight:600;}
+  .compare-arrow{display:flex; align-items:center; justify-content:center; background:var(--panel); font-size:1.3rem; color:var(--gold); padding:0 6px;}
+
+  /* ---------- SCIENCE DIAGRAM ---------- */
+  .science-strip{display:flex; align-items:center; justify-content:space-between; gap:6px; margin-top:48px; flex-wrap:wrap;}
+  .science-node{flex:1; min-width:140px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px 16px; text-align:center;}
+  .science-node .sn-title{font-family:var(--serif); font-weight:700; color:var(--teal-dark); font-size:1.02rem; margin-bottom:6px;}
+  .science-node .sn-sub{font-size:0.82rem; color:var(--ink-soft);}
+  .science-node.final{background:var(--teal-dark); border-color:var(--teal-dark);}
+  .science-node.final .sn-title, .science-node.final .sn-sub{color:#fff;}
+  .science-arrow{font-size:1.3rem; color:var(--gold); flex-shrink:0;}
+
+  /* ---------- ROADMAP ---------- */
+  .roadmap{display:grid; grid-template-columns:repeat(6, 1fr); gap:14px; margin-top:48px;}
+  .rm-step{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:22px 16px; text-align:center; position:relative;}
+  .rm-step .rm-num{width:30px; height:30px; border-radius:50%; background:var(--teal-tint); color:var(--teal-dark); display:flex; align-items:center; justify-content:center; font-family:var(--mono); font-weight:700; font-size:0.85rem; margin:0 auto 12px;}
+  .rm-step.done .rm-num{background:var(--risk-low); color:#fff;}
+  .rm-step.now .rm-num{background:var(--gold); color:#fff;}
+  .rm-step h4{font-size:0.92rem; color:var(--teal-dark); margin-bottom:4px;}
+  .rm-step .rm-tag{font-family:var(--mono); font-size:0.62rem; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft);}
+  .rm-legend{display:flex; gap:22px; justify-content:center; margin-top:26px; font-size:0.82rem; color:var(--ink-soft); flex-wrap:wrap;}
+  .rm-legend span{display:inline-flex; align-items:center; gap:7px;}
+  .rm-legend .sw{width:10px; height:10px; border-radius:50%;}
+
+  /* ---------- PARTNER CHIPS ---------- */
+  .partner-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; margin-top:44px;}
+  .partner-card{background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.14); border-radius:12px; padding:22px; text-align:center;}
+  .partner-card .pc-icon{font-size:1.6rem; margin-bottom:10px;}
+  .partner-card .pc-title{font-weight:700; color:#fff; font-size:0.96rem;}
+
+  .trend-row{display:flex; gap:16px; flex-wrap:wrap; margin-top:38px;}
+  .trend-chip{flex:1; min-width:200px; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px; text-align:center; font-weight:700; color:var(--teal-dark); font-size:0.94rem;}
+
+  .innovation-row{display:flex; gap:14px; flex-wrap:wrap; margin-top:36px;}
+  .innovation-chip{display:flex; align-items:center; gap:9px; background:var(--panel); border:1px solid var(--line); border-radius:100px; padding:12px 20px; font-weight:600; font-size:0.9rem; color:var(--teal-dark);}
+  .innovation-chip .ic-tick{color:var(--risk-low); font-weight:900;}
+
+  .tagline-strip{display:flex; gap:10px; flex-wrap:wrap; margin-top:24px;}
+  .tagline-pill{font-family:var(--mono); font-size:0.78rem; letter-spacing:.04em; background:var(--teal-tint); color:var(--teal-dark); padding:8px 16px; border-radius:100px; font-weight:600;}
+
+  @media (max-width: 900px){
+    .compare{grid-template-columns:1fr;}
+    .compare-arrow{padding:10px 0;}
+    .science-strip{flex-direction:column;}
+    .science-arrow{transform:rotate(90deg);}
+    .roadmap{grid-template-columns:repeat(3,1fr);}
+    .partner-grid{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:600px){
+    .roadmap{grid-template-columns:1fr 1fr;}
+    .partner-grid{grid-template-columns:1fr;}
+  }
+
+  /* ---------- APP SHOWCASE ---------- */
+  .app-wrap{display:grid; grid-template-columns:0.9fr 1.1fr; gap:56px; align-items:center; margin-top:48px;}
+  .phone{
+    width:280px; margin:0 auto; background:var(--teal-dark); border-radius:38px; padding:14px;
+    box-shadow:var(--shadow); position:relative;
+  }
+  .phone::before{
+    content:''; position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:70px; height:6px; border-radius:6px; background:rgba(255,255,255,0.18);
+  }
+  .phone-screen{
+    background:var(--paper); border-radius:26px; padding:26px 18px 22px; min-height:460px;
+    display:flex; flex-direction:column;
+  }
+  .phone-screen .ps-label{font-family:var(--mono); font-size:0.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--teal); margin-bottom:14px; text-align:center;}
+  .ps-view{display:none; flex:1; flex-direction:column;}
+  .ps-view.active{display:flex;}
+  .ps-tasklist .ps-task{display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:10px; font-size:0.86rem; font-weight:600;}
+  .ps-q{font-size:0.92rem; font-weight:700; color:var(--teal-dark); margin-bottom:12px; text-align:center;}
+  .ps-opt{background:#fff; border:1px solid var(--line); border-radius:10px; padding:11px 14px; margin-bottom:9px; font-size:0.82rem; text-align:center;}
+  .ps-opt.sel{border-color:var(--teal); background:var(--teal-tint); font-weight:700; color:var(--teal-dark);}
+  .ps-result-light{width:88px; height:88px; border-radius:50%; background:var(--risk-mod); margin:12px auto 14px; display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:1.5rem; color:#fff; font-weight:700;}
+  .ps-result-text{text-align:center; font-size:0.84rem; color:var(--ink-soft); margin-bottom:14px;}
+  .ps-tip{background:var(--gold-tint); border-radius:10px; padding:12px 14px; font-size:0.78rem; color:var(--ink);}
+  .ps-trend{display:flex; align-items:flex-end; gap:6px; height:120px; margin:14px 0;}
+  .ps-trend .bar{flex:1; border-radius:5px 5px 0 0;}
+  .ps-chip-row{display:flex; justify-content:space-between; font-family:var(--mono); font-size:0.6rem; color:var(--ink-soft); margin-bottom:6px;}
+  .phone-nav{display:flex; justify-content:space-around; margin-top:auto; padding-top:14px; border-top:1px solid var(--line);}
+  .phone-nav span{font-size:1.1rem; opacity:0.35;}
+  .app-tabs{display:flex; justify-content:center; gap:8px; margin-top:16px;}
+  .app-tab{width:9px; height:9px; border-radius:50%; background:var(--line); border:none; cursor:pointer; padding:0;}
+  .app-tab.active{background:var(--teal); width:22px; border-radius:5px;}
+
+  .app-feature-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  .app-feature{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:20px 22px;}
+  .app-feature h4{font-size:0.98rem; color:var(--teal-dark); margin-bottom:6px; font-family:var(--sans); font-weight:700;}
+  .app-feature p{font-size:0.88rem; margin:0;}
+  .platform-badges{display:flex; gap:10px; flex-wrap:wrap; margin-top:22px;}
+  .platform-badge{font-family:var(--mono); font-size:0.72rem; background:var(--teal-tint); color:var(--teal-dark); padding:7px 14px; border-radius:100px; font-weight:600;}
+
+  /* ---------- SIMULATOR (signature element) ---------- */
+  .simulator{
+    background:var(--panel); border:1px solid var(--line); border-radius:20px; box-shadow:var(--shadow);
+    padding:40px; margin-top:48px; display:grid; grid-template-columns:1.3fr 1fr; gap:44px;
+  }
+  .sim-controls .field{margin-bottom:20px;}
+  .sim-controls label{display:block; font-size:0.82rem; font-weight:700; color:var(--teal-dark); margin-bottom:8px; font-family:var(--mono); letter-spacing:.03em; text-transform:uppercase;}
+  .sim-controls select{
+    width:100%; padding:11px 14px; border-radius:9px; border:1px solid var(--line); background:var(--paper);
+    font-family:var(--sans); font-size:0.95rem; color:var(--ink); cursor:pointer;
+  }
+  .sim-row{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  .sim-result{display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; border-left:1px dashed var(--line); padding-left:44px;}
+  .sim-light{width:112px; height:112px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-bottom:20px; transition:background .35s ease;}
+  .sim-light .score{font-family:var(--serif); font-size:2.1rem; color:#fff; font-weight:700;}
+  .sim-result .risklabel{font-family:var(--mono); letter-spacing:.08em; text-transform:uppercase; font-size:0.85rem; font-weight:700; margin-bottom:8px;}
+  .sim-result .implication{font-size:0.92rem; color:var(--ink-soft); max-width:230px;}
+  .sim-fri{margin-top:22px; padding-top:18px; border-top:1px dashed var(--line); width:100%; font-size:0.86rem; color:var(--ink-soft);}
+  .sim-fri b{color:var(--teal-dark);}
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{position:relative; max-width:880px; margin:56px auto 0; padding-left:8px;}
+  .timeline::before{content:''; position:absolute; left:98px; top:6px; bottom:6px; width:2px; background:var(--line);}
+  .tl-item{display:grid; grid-template-columns:98px 1fr; gap:28px; margin-bottom:40px; position:relative;}
+  .tl-item:last-child{margin-bottom:0;}
+  .tl-year{font-family:var(--mono); font-size:0.85rem; color:var(--teal); font-weight:600; padding-top:3px; text-align:right;}
+  .tl-dot{position:absolute; left:94px; top:6px; width:11px; height:11px; border-radius:50%; background:var(--teal); border:3px solid var(--paper);}
+  .tl-body{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:24px 28px;}
+  .tl-body ul{padding-left:18px; color:var(--ink-soft); margin-top:6px;}
+  .tl-body li{margin-bottom:4px; font-size:0.96rem;}
+
+  .validation-strip{display:grid; grid-template-columns:repeat(4,1fr); gap:24px; margin-top:20px; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:30px;}
+  .validation-strip .vi{text-align:center; border-right:1px dashed var(--line);}
+  .validation-strip .vi:last-child{border-right:none;}
+  .validation-strip .vi b{display:block; font-family:var(--serif); font-size:1.9rem; color:var(--teal-dark);}
+  .validation-strip .vi span{font-size:0.8rem; color:var(--ink-soft);}
+
+  /* ---------- FRI ---------- */
+  .fri-wrap{display:grid; grid-template-columns:1fr 1fr; gap:50px; align-items:center;}
+  .fri-scale{display:flex; flex-direction:column; gap:12px;}
+  .fri-row{display:flex; align-items:center; gap:16px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); border-radius:12px; padding:16px 20px;}
+  .fri-row .fnum{font-family:var(--serif); font-size:1.4rem; width:30px;}
+  .fri-row .flabel{font-weight:600;}
+  .fri-row .fsub{font-size:0.85rem; color:#a9c0ba;}
+  .fri-row.stable .fnum{color:var(--risk-low);}
+  .fri-row.unsteady .fnum{color:var(--risk-mod);}
+  .fri-row.veryunsteady .fnum{color:var(--risk-high);}
+
+  /* ---------- BENEFITS TABS ---------- */
+  .tabs{display:flex; gap:10px; margin:44px 0 30px; flex-wrap:wrap;}
+  .tab-btn{
+    padding:11px 22px; border-radius:100px; border:1px solid var(--line); background:var(--panel);
+    font-weight:600; font-size:0.92rem; cursor:pointer; color:var(--ink-soft); transition:all .2s ease;
+  }
+  .tab-btn.active{background:var(--teal); border-color:var(--teal); color:#fff;}
+  .tab-panel{display:none; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:38px;}
+  .tab-panel.active{display:grid; grid-template-columns:1fr 1fr; gap:36px;}
+  .tab-panel ul{padding-left:20px; color:var(--ink-soft); margin-top:12px;}
+  .tab-panel li{margin-bottom:9px;}
+
+  /* ---------- MISSION ---------- */
+  .mission-block{max-width:820px; margin:0 auto; text-align:center;}
+  .mission-block h2{color:#fff;}
+  .mission-quote{font-family:var(--serif); font-size:1.55rem; font-weight:500; color:#fff; line-height:1.45; margin:26px 0 34px;}
+  .mission-quote em{color:var(--gold); font-style:normal;}
+
+  /* ---------- FAQ ---------- */
+  .faq-list{max-width:820px; margin:44px auto 0;}
+  .faq-item{border-bottom:1px solid var(--line);}
+  .faq-q{display:flex; justify-content:space-between; align-items:center; padding:22px 4px; cursor:pointer; font-weight:600; font-size:1.02rem;}
+  .faq-q .plus{font-family:var(--mono); font-size:1.3rem; color:var(--teal); transition:transform .25s ease;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .3s ease;}
+  .faq-a p{padding-bottom:20px;}
+
+  /* ---------- CTA ---------- */
+  .cta-band{background:var(--gold-tint); border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+  .cta-band .wrap{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:26px;}
+  .cta-band h3{margin-bottom:4px;}
+
+  /* ---------- FOOTER ---------- */
+  footer{background:var(--ink); color:#cfe0da; padding:70px 0 30px;}
+  footer .fgrid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px; padding-bottom:44px; border-bottom:1px solid rgba(255,255,255,0.12);}
+  footer h4{color:#fff; font-family:var(--sans); font-size:0.86rem; letter-spacing:.06em; text-transform:uppercase; margin-bottom:16px; font-weight:600;}
+  footer ul{list-style:none;}
+  footer li{margin-bottom:10px;}
+  footer a{text-decoration:none; color:#a9c0ba; font-size:0.94rem;}
+  footer a:hover{color:#fff;}
+  footer .fbottom{padding-top:24px; display:flex; justify-content:space-between; font-size:0.82rem; color:#7f978f; flex-wrap:wrap; gap:10px;}
+  .fbrand{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .fbrand .brand-word{color:#fff;}
+
+  @media (max-width: 980px){
+    .hero .wrap{grid-template-columns:1fr;}
+    .problem-grid{grid-template-columns:1fr;}
+    .flow{grid-template-columns:1fr;}
+    .simulator{grid-template-columns:1fr;}
+    .sim-result{border-left:none; border-top:1px dashed var(--line); padding-left:0; padding-top:30px; margin-top:10px;}
+    .fri-wrap{grid-template-columns:1fr;}
+    .tab-panel.active{grid-template-columns:1fr;}
+    .validation-strip{grid-template-columns:1fr 1fr;}
+    .validation-strip .vi{border-right:none; border-bottom:1px dashed var(--line); padding-bottom:16px;}
+    footer .fgrid{grid-template-columns:1fr 1fr;}
+    nav.links{display:none;}
+    .menu-btn{display:block;}
+  }
+  @media (max-width: 600px){
+    section{padding:70px 0;}
+    .stat-row{gap:22px;}
+    .validation-strip{grid-template-columns:1fr 1fr;}
+    footer .fgrid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a href="#top" class="brand">
+      <div class="brand-mark"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+      <span class="brand-word">TAER<em>I</em></span>
+    </a>
+    <ul class="links">
+      <li><a href="#how-it-works">How it works</a></li>
+      <li><a href="#app">The app</a></li>
+      <li><a href="#simulator">Try the score</a></li>
+      <li><a href="#research">The research</a></li>
+      <li><a href="#benefits">Who it's for</a></li>
+      <li><a href="#roadmap">Roadmap</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="#contact" class="btn btn-ghost" style="padding:10px 20px;">Contact</a>
+    </div>
+    <button class="menu-btn">☰</button>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-text">
+      <div class="eyebrow">Task Assessment for Ease &amp; Risk — Independence</div>
+      <h1>Home safety shouldn't wait for an injury to prove the point.</h1>
+      <p class="lede">TAERI turns a validated piece of ergonomics research into a proactive telehealth platform — spotting rising risk in ordinary chores like laundry, cleaning and shopping, weeks before they lead to a fall or a hospital visit.</p>
+      <div class="tagline-strip">
+        <span class="tagline-pill">Predicting Risk</span>
+        <span class="tagline-pill">Preventing Falls</span>
+        <span class="tagline-pill">Protecting Independence</span>
+      </div>
+      <div class="hero-cta" style="margin-top:26px;">
+        <a href="#simulator" class="btn btn-primary">Try the live risk score →</a>
+        <a href="#research" class="btn btn-ghost">Read the research</a>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><b>78%</b><span>SENSITIVITY IN TRIAL</span></div>
+        <div class="stat"><b>76%</b><span>OVERALL ACCURACY</span></div>
+        <div class="stat"><b>3</b><span>VALIDATED PARAMETERS</span></div>
+      </div>
+    </div>
+    <div class="hero-panel">
+      <div class="panel-head"><b>This week's task log</b><span class="tag g">Live</span></div>
+      <div class="task-row"><span class="name"><span class="dot g"></span>Folding laundry</span><span class="tag g">Low</span></div>
+      <div class="task-row"><span class="name"><span class="dot y"></span>Vacuuming stairs</span><span class="tag y">Moderate</span></div>
+      <div class="task-row"><span class="name"><span class="dot r"></span>Reaching top cupboard</span><span class="tag r">High</span></div>
+      <div class="task-row"><span class="name"><span class="dot g"></span>Weekly shop, light bags</span><span class="tag g">Low</span></div>
+      <div class="task-row"><span class="name"><span class="dot y"></span>Cleaning the bath</span><span class="tag y">Moderate</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="problem">
+  <div class="wrap">
+    <div class="eyebrow center">Why do we need TAERI?</div>
+    <h2 class="center">Healthcare reacts to falls. It rarely prevents them.</h2>
+    <p class="lede center" style="margin:0 auto;">Existing ergonomic tools were built for factories and warehouses — for tasks that are supervised, repetitive, and predictable. Home life is none of those things, which is exactly why the risk inside it goes unnoticed until something breaks.</p>
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="num">TOO LATE</div>
+        <h3>Risk is recognised too late</h3>
+        <p>In most cases, functional risk is only identified after a fall or an injury has already happened — not before.</p>
+      </div>
+      <div class="problem-card">
+        <div class="num">EPISODIC</div>
+        <h3>Assessment is episodic</h3>
+        <p>Formal assessment usually happens only during scheduled clinical visits, leaving long gaps where nothing is being observed at all.</p>
+      </div>
+      <div class="problem-card">
+        <div class="num">INVISIBLE</div>
+        <h3>Decline stays invisible</h3>
+        <p>Functional decline at home is gradual and largely unnoticed — by the person experiencing it and by the clinicians who could act on it.</p>
+      </div>
+    </div>
+    <p class="center" style="max-width:640px; margin:38px auto 0; font-family:var(--serif); font-size:1.3rem; color:var(--teal-dark); font-weight:600;">Can we identify functional decline before a crisis occurs?</p>
+  </div>
+</section>
+
+<section id="how-it-works">
+  <div class="wrap">
+    <div class="eyebrow">How it works</div>
+    <h2>From a household chore to a clinical signal</h2>
+    <p class="lede">Every assessment follows the same validated flow as the original paper-based TAER guide — just faster, and shared with the people who can act on it.</p>
+
+    <div class="flow">
+      <div class="flow-step"><div class="stepno">STEP 01</div><h3>Select a task</h3></div>
+      <div class="flow-detail"><ul><li>e.g. cleaning, laundry, shopping — picked from a short list, no typing required.</li></ul></div>
+
+      <div class="flow-step"><div class="stepno">STEP 02</div><h3>Answer five short questions</h3></div>
+      <div class="flow-detail">
+        <ul>
+          <li><span class="hl">Psychological perception</span> — how hard did the task feel?</li>
+          <li><span class="hl">Body posture</span> — how did your neck, back, arms and legs move?</li>
+          <li><span class="hl">Manual handling</span> — did you lift, carry, push or pull anything heavy?</li>
+          <li><span class="hl">Frequency &amp; duration</span> — how often, and for how long?</li>
+          <li><span class="hl">Fall Risk Indicator</span> — how stable did you feel throughout?</li>
+        </ul>
+      </div>
+
+      <div class="flow-step"><div class="stepno">STEP 03</div><h3>TAERI scores it instantly</h3></div>
+      <div class="flow-detail"><ul><li>Perception, posture and handling scores are combined and adjusted by a frequency-and-duration multiplier to produce one exposure score. The Fall Risk Indicator is recorded alongside it.</li></ul></div>
+
+      <div class="flow-step"><div class="stepno">STEP 04</div><h3>Results, in plain language</h3></div>
+      <div class="flow-detail"><ul><li>A task risk level — <b>Low, Moderate or High</b> — plus a stability read-out, a short explanation, and a practical tip for reducing the risk next time.</li></ul></div>
+
+      <div class="flow-step"><div class="stepno">STEP 05</div><h3>Trends build automatically</h3></div>
+      <div class="flow-detail"><ul><li>Weekly patterns, repeated high-risk tasks, and shifts in confidence or stability are tracked over time — no extra effort from the user.</li></ul></div>
+
+      <div class="flow-step"><div class="stepno">STEP 06</div><h3>Clinicians see it too</h3></div>
+      <div class="flow-detail"><ul><li>When a patient is connected to a clinician, the same trends surface on a dashboard — with alerts for worsening or persistently high-risk tasks, supporting earlier intervention.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="app">
+  <div class="wrap">
+    <div class="eyebrow">The TAERI app</div>
+    <h2>The assessment, in your pocket</h2>
+    <p class="lede">Everything above happens inside a single, deliberately plain app — a few taps to log a task, one traffic-light result, and a trend line that quietly builds itself in the background.</p>
+
+    <div class="app-wrap">
+      <div>
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="ps-label" id="psLabel">Select a task</div>
+
+            <div class="ps-view active" data-view="0">
+              <div class="ps-tasklist">
+                <div class="ps-task">🧺 Laundry <span class="dot g"></span></div>
+                <div class="ps-task">🧹 Vacuuming <span class="dot y"></span></div>
+                <div class="ps-task">🛁 Cleaning bathroom <span class="dot y"></span></div>
+                <div class="ps-task">🛒 Carrying shopping <span class="dot r"></span></div>
+              </div>
+              <div class="phone-nav"><span>🏠</span><span>📈</span><span>👤</span></div>
+            </div>
+
+            <div class="ps-view" data-view="1">
+              <div class="ps-q">How stable did you feel during this task?</div>
+              <div class="ps-opt">Very stable</div>
+              <div class="ps-opt sel">Somewhat unsteady</div>
+              <div class="ps-opt">Very unsteady</div>
+              <div class="phone-nav"><span>🏠</span><span>📈</span><span>👤</span></div>
+            </div>
+
+            <div class="ps-view" data-view="2">
+              <div class="ps-result-light">3.4</div>
+              <div class="ps-result-text"><b style="color:var(--risk-mod)">Moderate risk</b><br>Vacuuming stairs — not easy to perform, worth adjusting.</div>
+              <div class="ps-tip">💡 Try a lighter vacuum head and take a short break halfway up the stairs.</div>
+              <div class="phone-nav"><span>🏠</span><span>📈</span><span>👤</span></div>
+            </div>
+
+            <div class="ps-view" data-view="3">
+              <div class="ps-chip-row"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
+              <div class="ps-trend">
+                <div class="bar" style="height:30%; background:var(--risk-low);"></div>
+                <div class="bar" style="height:45%; background:var(--risk-low);"></div>
+                <div class="bar" style="height:60%; background:var(--risk-mod);"></div>
+                <div class="bar" style="height:55%; background:var(--risk-mod);"></div>
+                <div class="bar" style="height:80%; background:var(--risk-high);"></div>
+                <div class="bar" style="height:50%; background:var(--risk-mod);"></div>
+                <div class="bar" style="height:35%; background:var(--risk-low);"></div>
+              </div>
+              <div class="ps-result-text">Thursday's high-risk task repeated twice this week — flagged for your clinician.</div>
+              <div class="phone-nav"><span>🏠</span><span>📈</span><span>👤</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="app-tabs">
+          <button class="app-tab active" data-idx="0"></button>
+          <button class="app-tab" data-idx="1"></button>
+          <button class="app-tab" data-idx="2"></button>
+          <button class="app-tab" data-idx="3"></button>
+        </div>
+      </div>
+
+      <div>
+        <div class="app-feature-grid">
+          <div class="app-feature"><h4>Adaptive questionnaire</h4><p>The flow adjusts as you answer — if you didn't lift anything, follow-up lifting questions are skipped automatically.</p></div>
+          <div class="app-feature"><h4>Instant traffic-light scoring</h4><p>Every task returns a Green, Yellow or Red result the moment it's logged, with a plain-language reason why.</p></div>
+          <div class="app-feature"><h4>Trends, not just snapshots</h4><p>Weekly patterns and repeated high-risk tasks surface automatically, so decline is caught early rather than in hindsight.</p></div>
+          <div class="app-feature"><h4>Clinician connection</h4><p>When linked to a healthcare professional, the same data reaches their dashboard — with alerts on worsening tasks.</p></div>
+          <div class="app-feature"><h4>In-app video capture</h4><p>Optionally record a task for a clinician to review, stored securely rather than described from memory.</p></div>
+          <div class="app-feature"><h4>Exportable reports</h4><p>A patient summary can be viewed in-app or exported as a PDF to bring to — or send ahead of — an appointment.</p></div>
+        </div>
+        <div class="platform-badges">
+          <span class="platform-badge">📱 iOS &amp; Android (React Native)</span>
+          <span class="platform-badge">💻 Progressive Web App</span>
+          <span class="platform-badge">🩺 Web clinician dashboard</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="simulator">
+  <div class="wrap">
+    <div class="eyebrow">Try it yourself</div>
+    <h2>The actual scoring logic, live</h2>
+    <p class="lede">This is a working model of TAERI's exposure-score algorithm — the same three parameters and thresholds validated in the original research. Change the answers and watch the traffic light respond.</p>
+
+    <div class="simulator">
+      <div class="sim-controls">
+        <div class="sim-row">
+          <div class="field">
+            <label>Physical demand felt</label>
+            <select id="physicalDemand">
+              <option value="None">None</option>
+              <option value="Minor">Minor</option>
+              <option value="Moderate" selected>Moderate</option>
+              <option value="Too much">Too much</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Task complexity felt</label>
+            <select id="complexity">
+              <option value="Not at all">Not at all</option>
+              <option value="Slightly">Slightly</option>
+              <option value="Moderately" selected>Moderately</option>
+              <option value="Extremely">Extremely</option>
+            </select>
+          </div>
+        </div>
+        <div class="sim-row">
+          <div class="field">
+            <label>Back posture</label>
+            <select id="back">
+              <option value="Neutral or flexed 0-20°">Neutral, 0–20°</option>
+              <option value="Flexed 20-60°" selected>Flexed 20–60°</option>
+              <option value="Flexed >60°">Flexed &gt;60°</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Shoulder posture</label>
+            <select id="shoulder">
+              <option value="Supported/close to body">Close to body</option>
+              <option value="Abducted 20-45°" selected>Abducted 20–45°</option>
+              <option value="Fully abducted >45°">Fully abducted &gt;45°</option>
+            </select>
+          </div>
+        </div>
+        <div class="sim-row">
+          <div class="field">
+            <label>Heaviest item lifted</label>
+            <select id="lifting">
+              <option value="Light (<1 kg)">Light (&lt;1kg)</option>
+              <option value="Moderate (1-5 kg)" selected>Moderate (1–5kg)</option>
+              <option value="Heavy (>5 kg)">Heavy (&gt;5kg)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>How long, and how often</label>
+            <select id="durationFreq">
+              <option value="Less than 5 min|Once a week">&lt;5 min, once/week</option>
+              <option value="16-25 min|3 times a week" selected>16–25 min, 3x/week</option>
+              <option value="More than 1 hour|4-7 times a week">&gt;1 hr, daily-ish</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Felt stability during the task (Fall Risk Indicator)</label>
+          <select id="fri">
+            <option value="1">Very stable</option>
+            <option value="2" selected>Somewhat unsteady</option>
+            <option value="3">Very unsteady</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="sim-result">
+        <div class="sim-light" id="simLight"><span class="score" id="simScore">—</span></div>
+        <div class="risklabel" id="simLabel">—</div>
+        <p class="implication" id="simImplication">Adjust the answers on the left to see the score update.</p>
+        <div class="sim-fri" id="simFri"><b>Fall Risk Indicator:</b> —</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="research">
+  <div class="wrap">
+    <div class="eyebrow">The research</div>
+    <h2>Ten years, one continuous thread</h2>
+    <p class="lede">TAERI isn't a wellness app dressed up in clinical language. It's the direct digital descendant of PhD research undertaken at the University of Sheffield, published in the <em>International Journal of Public Health and Clinical Sciences.</em></p>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-year">2015–2018</div>
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <h3>The gap in the room</h3>
+          <p>Working alongside occupational therapists and watching people perform ordinary domestic tasks made one thing obvious: assessment tools built for factories don't fit homes, where tasks are brief, irregular, and done alone. That observation became TAER — a paper-based methodology assessing Psychological Perception, Adopted Postures, and Manual Handling.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2018–2020</div>
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <h3>Where paper falls short</h3>
+          <p>The methodology worked, but the format didn't scale:</p>
+          <ul>
+            <li>Manual scoring was slow and easy to get wrong</li>
+            <li>Nothing was tracked over time</li>
+            <li>Remote monitoring simply wasn't possible</li>
+            <li>Clinicians had no way to flag risk before an appointment</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2022–2024</div>
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <h3>TAERI: Independence, Interface</h3>
+          <p>TAER became TAERI — retaining every validated parameter while adding instant scoring, personalised feedback, and trend tracking through a mobile interface designed for people who've never needed a health app before.</p>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-year">2025–present</div>
+        <div class="tl-dot"></div>
+        <div class="tl-body">
+          <h3>A connected telehealth ecosystem</h3>
+          <p>Continuous monitoring, tailored recommendations, and secure clinical connectivity now sit alongside the original methodology — reducing reliance on in-person visits without reducing the quality of care.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="validation-strip">
+      <div class="vi"><b>20</b><span>trial participants</span></div>
+      <div class="vi"><b>78%</b><span>sensitivity</span></div>
+      <div class="vi"><b>74%</b><span>specificity</span></div>
+      <div class="vi"><b>76%</b><span>accuracy identifying discomfort</span></div>
+    </div>
+    <p style="text-align:center; margin-top:22px; font-size:0.9rem;">Risk bands are set from the validated exposure score: <b style="color:var(--risk-low)">Low &lt; 1.6</b> · <b style="color:var(--risk-mod)">Moderate 1.6–5</b> · <b style="color:var(--risk-high)">High &gt; 5</b>. No prior training is required, and the tool remains accessible to users with low literacy.</p>
+
+    <div style="margin-top:80px;">
+      <div class="eyebrow center">The science remained. The delivery changed.</div>
+      <h2 class="center">From TAER to TAERI</h2>
+      <div class="compare">
+        <div class="compare-col old">
+          <div class="compare-head">TAER — 2015–2018</div>
+          <div class="compare-row">📄 Paper-based</div>
+          <div class="compare-row">✍️ Manual scoring</div>
+          <div class="compare-row">📍 One-time assessment</div>
+          <div class="compare-row">🚫 No remote monitoring</div>
+          <div class="compare-row">🚫 No trends</div>
+        </div>
+        <div class="compare-arrow">→</div>
+        <div class="compare-col new">
+          <div class="compare-head">TAERI — today</div>
+          <div class="compare-row">📱 Digital platform</div>
+          <div class="compare-row">⚡ Automatic scoring</div>
+          <div class="compare-row">🔁 Continuous monitoring</div>
+          <div class="compare-row">📈 Trend analysis</div>
+          <div class="compare-row">🩺 Clinician dashboard &amp; remote care</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:80px;">
+      <div class="eyebrow center">Built on science</div>
+      <h2 class="center">Five disciplines, one validated pathway</h2>
+      <div class="science-strip">
+        <div class="science-node"><div class="sn-title">Human Factors</div><div class="sn-sub">Understand user needs &amp; context</div></div>
+        <div class="science-arrow">→</div>
+        <div class="science-node"><div class="sn-title">Ergonomics</div><div class="sn-sub">Optimise interaction &amp; usability</div></div>
+        <div class="science-arrow">→</div>
+        <div class="science-node"><div class="sn-title">TAER Validation</div><div class="sn-sub">Validate assessment reliability</div></div>
+        <div class="science-arrow">→</div>
+        <div class="science-node"><div class="sn-title">Digital Health</div><div class="sn-sub">Integrate technology for delivery</div></div>
+        <div class="science-arrow">→</div>
+        <div class="science-node final"><div class="sn-title">TAERI</div><div class="sn-sub">Finalised, validated intervention</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ink-section" id="fri">
+  <div class="wrap">
+    <div class="fri-wrap">
+      <div>
+        <div class="eyebrow" style="color:#e3a84a;">Beyond ergonomics</div>
+        <h2>The Fall Risk Indicator</h2>
+        <p>The core TAERI assessment covers effort, posture and handling — but none of that captures balance, one of the strongest predictors of a fall at home. The Fall Risk Indicator closes that gap with a single, deliberately simple question:</p>
+        <p class="mission-quote" style="font-size:1.2rem; margin:22px 0;">"How stable did you feel <em>during this task</em>?"</p>
+        <p>It's scored separately from the ergonomic exposure total and shown alongside it — so a task can look ergonomically fine while still raising a stability flag that's worth acting on.</p>
+      </div>
+      <div class="fri-scale">
+        <div class="fri-row stable"><span class="fnum">1</span><div><div class="flabel">Very stable</div><div class="fsub">Low perceived fall risk</div></div></div>
+        <div class="fri-row unsteady"><span class="fnum">2</span><div><div class="flabel">Somewhat unsteady</div><div class="fsub">Moderate perceived fall risk — worth a note</div></div></div>
+        <div class="fri-row veryunsteady"><span class="fnum">3</span><div><div class="flabel">Very unsteady</div><div class="fsub">High perceived fall risk — triggers a safety flag</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="different">
+  <div class="wrap">
+    <div class="eyebrow">Why TAERI is different</div>
+    <h2>Not a smarter clinic visit. A different kind of care.</h2>
+    <div class="compare">
+      <div class="compare-col old">
+        <div class="compare-head">Traditional assessment</div>
+        <div class="compare-row">🏥 Clinic-based</div>
+        <div class="compare-row">🚨 Reactive</div>
+        <div class="compare-row">📅 Periodic</div>
+        <div class="compare-row">📋 General assessment</div>
+        <div class="compare-row">✍️ Manual</div>
+        <div class="compare-row">📸 Snapshot</div>
+      </div>
+      <div class="compare-arrow">→</div>
+      <div class="compare-col new">
+        <div class="compare-head">TAERI</div>
+        <div class="compare-row">🏠 Home-based</div>
+        <div class="compare-row">🛡️ Preventive</div>
+        <div class="compare-row">🔁 Continuous</div>
+        <div class="compare-row">🎯 Task-specific</div>
+        <div class="compare-row">⚡ Digital</div>
+        <div class="compare-row">📈 Longitudinal trends</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="benefits" class="alt">
+  <div class="wrap">
+    <div class="eyebrow">Who it serves</div>
+    <h2>One assessment, three audiences</h2>
+    <p class="lede">TAERI doesn't replace clinical care — it fills the gap between appointments, for everyone involved in it.</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="patients">Patients &amp; families</button>
+      <button class="tab-btn" data-tab="clinicians">Clinicians</button>
+      <button class="tab-btn" data-tab="nhs">Health systems</button>
+    </div>
+
+    <div class="tab-panel active" id="patients">
+      <div>
+        <h3>Confidence, not medicalisation</h3>
+        <p>TAERI stays focused on familiar chores — cleaning, laundry, shopping, personal care — and helps people see which tasks carry risk and how to perform them more safely, without turning daily life into a clinical exercise.</p>
+        <div class="innovation-row">
+          <span class="innovation-chip"><span class="ic-tick">✓</span>Stay Independent Longer</span>
+          <span class="innovation-chip"><span class="ic-tick">✓</span>Peace of Mind for Families</span>
+          <span class="innovation-chip"><span class="ic-tick">✓</span>Early Warning Signs</span>
+          <span class="innovation-chip"><span class="ic-tick">✓</span>Personalised Support</span>
+        </div>
+      </div>
+      <div>
+        <ul>
+          <li>Immediate, personalised feedback and practical tips after every task</li>
+          <li>Encourages adapting a task rather than avoiding it altogether</li>
+          <li>Helps prevent falls and slow functional decline before they start</li>
+          <li>Fewer emergency GP visits and hospital admissions</li>
+          <li>Reassurance that wellbeing is being watched between appointments</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="clinicians">
+      <div>
+        <h3>Visibility into the 167 hours you don't see</h3>
+        <p>A short consultation can't reconstruct how a patient really manages laundry, cooking or stairs day to day. TAERI replaces retrospective guesswork with longitudinal data on posture, effort, confidence, handling and balance.</p>
+        <div class="innovation-row">
+          <span class="innovation-chip"><span class="ic-tick">✓</span>Visibility Between Visits</span>
+          <span class="innovation-chip"><span class="ic-tick">✓</span>Early Alerts</span>
+          <span class="innovation-chip"><span class="ic-tick">✓</span>Targeted Interventions</span>
+        </div>
+      </div>
+      <div>
+        <ul>
+          <li>Spot early decline before it becomes an incident report</li>
+          <li>Prioritise patients who need intervention first</li>
+          <li>Target advice at specific high-risk tasks, not generic guidance</li>
+          <li>Dashboards and alerts speed up decisions and cut unnecessary visits</li>
+          <li>Strengthens both remote and face-to-face assessments</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="nhs">
+      <div>
+        <h3>Prevention that fits existing pathways</h3>
+        <p>TAERI aligns with NHS priorities in prevention, community-based care and digital health transformation — sitting naturally inside services that already exist, rather than asking for a new one.</p>
+        <div class="innovation-row">
+          <span class="innovation-chip"><span class="ic-tick">✓</span>Reduced Hospital Admissions</span>
+          <span class="innovation-chip"><span class="ic-tick">✓</span>Cost-Effective Care</span>
+          <span class="innovation-chip"><span class="ic-tick">✓</span>Data-Driven Decisions</span>
+          <span class="innovation-chip"><span class="ic-tick">✓</span>Scalable Monitoring</span>
+        </div>
+      </div>
+      <div>
+        <ul>
+          <li>Fits GP services, community physiotherapy and OT, falls prevention programmes, virtual wards and ICSs</li>
+          <li>Shifts care upstream, from crisis response to early prevention</li>
+          <li>Falls are among the costliest, most preventable causes of admission — this targets exactly that</li>
+          <li>Better-targeted community resources and reduced pressure on acute services</li>
+          <li>Supports a more sustainable, digitally-enabled NHS — without replacing existing services</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="innovations">
+  <div class="wrap">
+    <div class="eyebrow center">Key innovations</div>
+    <h2 class="center">What sets the platform apart</h2>
+    <div class="innovation-row" style="justify-content:center;">
+      <span class="innovation-chip"><span class="ic-tick">✓</span>Fall Risk Indicator</span>
+      <span class="innovation-chip"><span class="ic-tick">✓</span>Functional Dependency Risk</span>
+      <span class="innovation-chip"><span class="ic-tick">✓</span>Real-Time Dashboard</span>
+      <span class="innovation-chip"><span class="ic-tick">✓</span>Personalised Feedback</span>
+      <span class="innovation-chip"><span class="ic-tick">✓</span>Secure &amp; GDPR-Ready</span>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="roadmap">
+  <div class="wrap">
+    <div class="eyebrow">Development roadmap</div>
+    <h2>From research partnership to healthcare implementation</h2>
+    <p class="lede">TAERI is progressing deliberately through clinical validation — not skipping straight from idea to app store.</p>
+    <div class="roadmap">
+      <div class="rm-step done"><div class="rm-num">1</div><h4>Research</h4><div class="rm-tag">Current</div></div>
+      <div class="rm-step done"><div class="rm-num">2</div><h4>Prototype</h4><div class="rm-tag">Current</div></div>
+      <div class="rm-step now"><div class="rm-num">3</div><h4>Co-design</h4><div class="rm-tag">Next</div></div>
+      <div class="rm-step now"><div class="rm-num">4</div><h4>Pilot Study</h4><div class="rm-tag">Next</div></div>
+      <div class="rm-step"><div class="rm-num">5</div><h4>Clinical Validation</h4><div class="rm-tag">Future</div></div>
+      <div class="rm-step"><div class="rm-num">6</div><h4>Healthcare Implementation</h4><div class="rm-tag">Future</div></div>
+    </div>
+    <div class="rm-legend">
+      <span><span class="sw" style="background:var(--risk-low);"></span>Current</span>
+      <span><span class="sw" style="background:var(--gold);"></span>Next</span>
+      <span><span class="sw" style="background:var(--line);"></span>Future</span>
+    </div>
+  </div>
+</section>
+
+<section id="why-now">
+  <div class="wrap">
+    <div class="eyebrow center">Why TAERI matters now</div>
+    <h2 class="center">A shift already underway</h2>
+    <p class="lede center" style="margin:0 auto;">TAERI supports the global shift from reactive healthcare to proactive, person-centred care.</p>
+    <div class="trend-row">
+      <div class="trend-chip">📊 Population Ageing</div>
+      <div class="trend-chip">🩺 Healthcare Workforce Pressure</div>
+      <div class="trend-chip">💻 Digital Transformation</div>
+      <div class="trend-chip">🛡️ Preventive Healthcare</div>
+    </div>
+  </div>
+</section>
+
+<section id="partners">
+  <div class="wrap">
+    <div class="eyebrow center">Let's build the future together</div>
+    <h2 class="center">We're looking for research and delivery partners</h2>
+    <p class="lede center" style="max-width:640px; margin:0 auto;">TAERI is at the co-design and pilot stage — the right partners now shape what clinical validation and rollout look like next.</p>
+    <div class="partner-grid">
+      <div class="partner-card" style="background:var(--panel); border-color:var(--line);"><div class="pc-icon">🏥</div><div class="pc-title" style="color:var(--teal-dark);">Health Systems</div></div>
+      <div class="partner-card" style="background:var(--panel); border-color:var(--line);"><div class="pc-icon">🎓</div><div class="pc-title" style="color:var(--teal-dark);">Universities</div></div>
+      <div class="partner-card" style="background:var(--panel); border-color:var(--line);"><div class="pc-icon">🩺</div><div class="pc-title" style="color:var(--teal-dark);">Occupational Therapists</div></div>
+      <div class="partner-card" style="background:var(--panel); border-color:var(--line);"><div class="pc-icon">💡</div><div class="pc-title" style="color:var(--teal-dark);">Innovation Programmes</div></div>
+      <div class="partner-card" style="background:var(--panel); border-color:var(--line);"><div class="pc-icon">💰</div><div class="pc-title" style="color:var(--teal-dark);">Research Funding</div></div>
+      <div class="partner-card" style="background:var(--panel); border-color:var(--line);"><div class="pc-icon">🤝</div><div class="pc-title" style="color:var(--teal-dark);">Industry Partners</div></div>
+    </div>
+    <div style="text-align:center; margin-top:38px;">
+      <a href="#contact" class="btn btn-primary">Get in touch about partnering</a>
+    </div>
+  </div>
+</section>
+
+<section class="ink-section" id="mission">
+  <div class="wrap mission-block">
+    <div class="eyebrow" style="color:#e3a84a;">Vision</div>
+    <h2>Independence, protected before it's lost</h2>
+    <p class="mission-quote">Imagine a future where everyday activities become <em>opportunities to detect risk</em> — not missed warning signs.</p>
+    <p>To empower people to maintain independence, safety and quality of life by proactively identifying ergonomic and balance-related risk in the home — before it results in injury or functional decline. The vision is a holistic, connected telehealth ecosystem that combines validated ergonomic assessment, fall risk awareness and personalised intervention within routine care.</p>
+    <div class="tagline-strip" style="justify-content:center; margin-top:30px;">
+      <span class="tagline-pill" style="background:rgba(255,255,255,0.12); color:#fff;">Predicting Risk</span>
+      <span class="tagline-pill" style="background:rgba(255,255,255,0.12); color:#fff;">Preventing Falls</span>
+      <span class="tagline-pill" style="background:rgba(255,255,255,0.12); color:#fff;">Protecting Independence</span>
+    </div>
+    <div style="font-family:var(--serif); font-weight:700; font-size:1.6rem; color:#e3a84a; margin-top:34px; letter-spacing:.02em;">TAERI</div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="eyebrow center">Questions</div>
+    <h2 class="center">Frequently asked</h2>
+    <div class="faq-list">
+      <div class="faq-item open">
+        <div class="faq-q"><span>How is TAERI different from a general wellness app?</span><span class="plus">+</span></div>
+        <div class="faq-a"><p>TAERI is built on the validated TAER methodology from peer-reviewed ergonomic research — not general wellness heuristics. It's designed specifically to surface injury and fall risk in home tasks before they cause harm, not to track steps or mood.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Do I need any training to use it?</span><span class="plus">+</span></div>
+        <div class="faq-a"><p>No. The original paper-based TAER tool required no prior training and remained accessible to people with low literacy — TAERI keeps that same simplicity, just delivered through a guided digital flow.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Does the Fall Risk Indicator affect my overall risk score?</span><span class="plus">+</span></div>
+        <div class="faq-a"><p>No — it's calculated and displayed separately from the ergonomic exposure score, so you get a complete picture of both physical strain and perceived stability without either one masking the other.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>Does TAERI replace my GP, OT or physiotherapist?</span><span class="plus">+</span></div>
+        <div class="faq-a"><p>No. TAERI is designed to strengthen existing NHS and clinical pathways — GP services, community OT and physiotherapy, falls prevention programmes — by giving them information they wouldn't otherwise have between appointments.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q"><span>What happens if a task scores High risk?</span><span class="plus">+</span></div>
+        <div class="faq-a"><p>You get a plain-language explanation of why, along with a practical suggestion for reducing the risk. If you're connected to a clinician, a persistently or repeatedly high-risk task also raises a flag on their dashboard.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-band">
+  <div class="wrap">
+    <div>
+      <h3>Ready to see where the risk really is?</h3>
+      <p style="margin:0;">Try the live scoring model above, or get in touch about piloting TAERI with your service.</p>
+    </div>
+    <div style="display:flex; gap:14px;">
+      <a href="#simulator" class="btn btn-primary">Try the score</a>
+      <a href="#contact" class="btn btn-ghost">Get in touch</a>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <div class="fbrand">
+          <div class="brand-mark"><span class="d1"></span><span class="d2"></span><span class="d3"></span></div>
+          <span class="brand-word">TAER<em style="color:#e3a84a; font-style:normal;">I</em></span>
+        </div>
+        <p style="max-width:280px; color:#a9c0ba; font-size:0.94rem;">Task Assessment for Ease &amp; Risk — Independence. Proactive telehealth, grounded in validated ergonomic research from the University of Sheffield.</p>
+      </div>
+      <div>
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#how-it-works">How it works</a></li>
+          <li><a href="#simulator">Live risk score</a></li>
+          <li><a href="#fri">Fall Risk Indicator</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Evidence</h4>
+        <ul>
+          <li><a href="#research">Research timeline</a></li>
+          <li><a href="#different">Why TAERI is different</a></li>
+          <li><a href="#benefits">Who it's for</a></li>
+          <li><a href="#roadmap">Development roadmap</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <ul>
+          <li>Dr Asim Zaheer, Project Lead</li>
+          <li><a href="mailto:asimzaheer@neduet.edu.pk">asimzaheer@neduet.edu.pk</a></li>
+          <li><a href="tel:+923212700850">+92 321 2700850</a></li>
+          <li><a href="#partners">Partner with us</a></li>
+        </ul>
+      </div>
+    </div>
+    <p style="text-align:center; font-style:italic; color:#a9c0ba; max-width:640px; margin:38px auto 0; font-size:0.95rem;">"Together, we can transform how functional decline is detected and managed — keeping people safer, healthier, and more independent for longer."</p>
+    <div class="fbottom" style="margin-top:24px;">
+      <span>© 2026 TAERI. Built on validated research, not guesswork.</span>
+      <span>International Journal of Public Health and Clinical Sciences</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ---------- TAERI scoring engine (mirrors the validated algorithm) ----------
+  class TAERIScoring {
+    constructor(){ this.riskThresholds = { low: 1.6, high: 5.0 }; }
+    mapPsychologicalPhysicalDemand(s){ return ({None:1,Minor:1,Moderate:2,"Too much":3})[s] || 1; }
+    mapPsychologicalComplexity(s){ return ({"Not at all":1,Slightly:1,Moderately:2,Extremely:3})[s] || 1; }
+    mapPosture(s, part){
+      const t = {
+        back: {"Neutral or flexed 0-20°":1,"Flexed 20-60°":2,"Flexed >60°":3},
+        shoulder: {"Supported/close to body":1,"Abducted 20-45°":2,"Fully abducted >45°":3}
+      };
+      return t[part][s] || 1;
+    }
+    mapHandling(s){ return ({"Light (<1 kg)":1,"Moderate (1-5 kg)":2,"Heavy (>5 kg)":3})[s] || 1; }
+    getMultiplier(duration, frequency){
+      const table = {
+        "Less than 5 min":[0.006,0.01,0.02,0.04],
+        "16-25 min":[0.05,0.1,0.15,0.34],
+        "More than 1 hour":[0.18,0.38,0.54,1.25]
+      };
+      const fIndex = {"Once a week":0,"Twice a week":1,"3 times a week":2,"4-7 times a week":3};
+      return table[duration][fIndex[frequency]];
+    }
+    score(inputs){
+      const psych = this.mapPsychologicalPhysicalDemand(inputs.physicalDemand) + this.mapPsychologicalComplexity(inputs.complexity);
+      const posture = this.mapPosture(inputs.back,'back') + this.mapPosture(inputs.shoulder,'shoulder');
+      const handling = this.mapHandling(inputs.lifting);
+      const total = psych + posture + handling;
+      const mult = this.getMultiplier(inputs.duration, inputs.frequency);
+      const exposure = Math.round(total * mult * 100) / 100;
+      let level, color, implication;
+      if(exposure < this.riskThresholds.low){ level="Low"; color="var(--risk-low)"; implication="Task is easy to perform, but still worth a little caution."; }
+      else if(exposure <= this.riskThresholds.high){ level="Moderate"; color="var(--risk-mod)"; implication="Not easy to perform — worth reconsidering how it's done."; }
+      else { level="High"; color="var(--risk-high)"; implication="Hard to perform safely — this needs a closer look."; }
+      return { exposure, level, color, implication };
+    }
+  }
+  const engine = new TAERIScoring();
+
+  function runSim(){
+    const [duration, frequency] = document.getElementById('durationFreq').value.split('|');
+    const inputs = {
+      physicalDemand: document.getElementById('physicalDemand').value,
+      complexity: document.getElementById('complexity').value,
+      back: document.getElementById('back').value,
+      shoulder: document.getElementById('shoulder').value,
+      lifting: document.getElementById('lifting').value,
+      duration, frequency
+    };
+    const r = engine.score(inputs);
+    document.getElementById('simScore').textContent = r.exposure;
+    document.getElementById('simLight').style.background = r.color;
+    document.getElementById('simLabel').textContent = r.level + ' risk';
+    document.getElementById('simLabel').style.color = r.color;
+    document.getElementById('simImplication').textContent = r.implication;
+
+    const fri = document.getElementById('fri').value;
+    const friText = {1:'Very stable — low perceived fall risk.',2:'Somewhat unsteady — moderate perceived fall risk.',3:'Very unsteady — high perceived fall risk, flagged.'}[fri];
+    document.getElementById('simFri').innerHTML = '<b>Fall Risk Indicator:</b> ' + friText;
+  }
+  ['physicalDemand','complexity','back','shoulder','lifting','durationFreq','fri'].forEach(id=>{
+    document.getElementById(id).addEventListener('change', runSim);
+  });
+  runSim();
+
+  // ---------- App phone mockup switcher ----------
+  const psLabels = ['Select a task','Answer the questions','Instant result','Weekly trends'];
+  document.querySelectorAll('.app-tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      const idx = tab.dataset.idx;
+      document.querySelectorAll('.app-tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.ps-view').forEach(v=>v.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelector('.ps-view[data-view="'+idx+'"]').classList.add('active');
+      document.getElementById('psLabel').textContent = psLabels[idx];
+    });
+  });
+  let psAuto = setInterval(()=>{
+    const active = document.querySelector('.app-tab.active');
+    let next = (parseInt(active.dataset.idx) + 1) % 4;
+    document.querySelector('.app-tab[data-idx="'+next+'"]').click();
+  }, 3600);
+  document.querySelector('.phone').addEventListener('click', ()=> clearInterval(psAuto));
+
+  // ---------- FAQ accordion ----------
+  document.querySelectorAll('.faq-item').forEach(item=>{
+    const q = item.querySelector('.faq-q');
+    const a = item.querySelector('.faq-a');
+    if(item.classList.contains('open')) a.style.maxHeight = a.scrollHeight + 'px';
+    q.addEventListener('click', ()=>{
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>{ i.classList.remove('open'); i.querySelector('.faq-a').style.maxHeight = null; });
+      if(!isOpen){ item.classList.add('open'); a.style.maxHeight = a.scrollHeight + 'px'; }
+    });
+  });
+
+  // ---------- Tabs ----------
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ---------- Mobile menu (simple toggle for nav links on small screens) ----------
+  document.querySelector('.menu-btn').addEventListener('click', ()=>{
+    const links = document.querySelector('nav.links');
+    links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+    links.style.cssText += 'position:absolute; top:64px; left:0; right:0; background:var(--paper); flex-direction:column; padding:20px 28px; border-bottom:1px solid var(--line);';
+  });
+</script>
+</body>
+</html>
