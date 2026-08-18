@@ -48,8 +48,12 @@ app.use(sanitizeInput);
 
 
 // CORS CONFIGURATION
+const allowedOrigins = ENV.ALLOWED_ORIGINS
+    ? ENV.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+    : ["http://localhost:3000", "http://localhost:3001", "https://taeri.online", "https://www.taeri.online", "https://admin.taeri.online"];
+
 app.use(cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],

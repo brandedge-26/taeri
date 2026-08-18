@@ -197,7 +197,7 @@ const welcomeEmailTemplate = (userName) => {
                             <table role="presentation" style="width: 100%; margin: 30px 0;">
                                 <tr>
                                     <td align="center">
-                                        <a href="http://localhost:3000/login" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                                        <a href="${ENV.ADMIN_URL ?? 'http://localhost:3000'}/login" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 50px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
                                             Go to Login →
                                         </a>
                                     </td>
