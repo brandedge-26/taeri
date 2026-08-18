@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import passport from "passport";
 import { sanitizeInput } from "./middlewares/sanitize.middleware.js";
+import { ENV } from "./config/env.js";
 import { connectDB } from "./config/db.js";
 import { globalErrorHandler } from "./middlewares/error.middleware.js";
 import { authRoutes } from "./routes/auth.routes.js";
