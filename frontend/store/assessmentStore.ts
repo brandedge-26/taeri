@@ -3,7 +3,7 @@ import axios from 'axios';
 import { create } from 'zustand';
 import { useAuthStore } from './authStore';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://api.taeri.online/api';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

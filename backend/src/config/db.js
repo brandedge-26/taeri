@@ -6,6 +6,10 @@ import { ENV } from "./env.js";
 const connectionOptions = {
     connectTimeoutMS: 10000,
     socketTimeoutMS: 45000,
+    serverSelectionTimeoutMS: 10000,
+    heartbeatFrequencyMS: 10000,
+    maxPoolSize: 10,
+    retryWrites: true,
 };
 
 
@@ -31,6 +35,14 @@ export const connectDB = async () => {
 
         mongoose.connection.on("disconnected", () => {
             console.warn("MongoDB disconnected. Attempting to reconnect...");
+            setTimeout(async () => {
+                try {
+                    await mongoose.connect(DB_URL, connectionOptions);
+                    console.log("MongoDB reconnected successfully.");
+                } catch (err) {
+                    console.error(`Reconnection failed: ${err.message}`);
+                }
+            }, 5000);
         });
 
     } catch (err) {
