@@ -199,7 +199,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           {
-            title: "Total Patients",
+            title: "Total Persons",
             value: stats?.totalUsers ?? "—",
             sub: "registered users",
             href: "/users",
@@ -211,7 +211,7 @@ export default function DashboardPage() {
           {
             title: "Assessments",
             value: stats?.totalAssessments ?? "—",
-            sub: `avg ${avgPerUser} per patient`,
+            sub: `avg ${avgPerUser} per person`,
             href: "/assessments",
             accent: "border-violet-500",
             iconBg: "bg-violet-50",
@@ -324,19 +324,19 @@ export default function DashboardPage() {
           <div className="flex flex-col gap-3 flex-1">
             {[
               {
-                label: "Patients with assessments",
+                label: "Persons with assessments",
                 value: loading ? null : riskTotal,
                 total: loading ? null : stats?.totalUsers ?? 0,
                 color: "bg-blue-500",
               },
               {
-                label: "Moderate risk patients",
+                label: "Moderate risk persons",
                 value: loading ? null : stats?.riskDistribution.yellow ?? 0,
                 total: loading ? null : riskTotal,
                 color: "bg-amber-400",
               },
               {
-                label: "Avg assessments / patient",
+                label: "Avg assessments / person",
                 value: loading ? null : parseFloat(avgPerUser),
                 total: null,
                 color: "bg-violet-500",
@@ -378,7 +378,7 @@ export default function DashboardPage() {
               View all assessments
             </Link>
             <Link href="/users" className="text-xs font-semibold text-primary hover:underline">
-              View patients
+              View persons
             </Link>
           </div>
         </div>
@@ -389,8 +389,8 @@ export default function DashboardPage() {
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div>
-            <h3 className="text-sm font-bold text-gray-800">At-Risk Patients</h3>
-            <p className="text-xs text-gray-400 mt-0.5">Patients with Moderate or High fall risk</p>
+            <h3 className="text-sm font-bold text-gray-800">At-Risk Persons</h3>
+            <p className="text-xs text-gray-400 mt-0.5">Persons with Moderate or High fall risk</p>
           </div>
           <div className="flex items-center gap-2">
             <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-1">
@@ -406,7 +406,7 @@ export default function DashboardPage() {
 
         {/* Table head */}
         <div className="hidden sm:grid grid-cols-12 gap-3 px-5 py-2.5 border-b border-gray-100 bg-gray-50/60">
-          <span className="col-span-4 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Patient</span>
+          <span className="col-span-4 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Person</span>
           <span className="col-span-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Risk Level</span>
           <span className="col-span-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Avg Score</span>
           <span className="col-span-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Assessments</span>
@@ -435,7 +435,7 @@ export default function DashboardPage() {
               </svg>
             </div>
             <p className="text-sm font-semibold text-gray-700">All clear</p>
-            <p className="text-xs text-gray-400">No patients with moderate or high risk</p>
+            <p className="text-xs text-gray-400">No persons with moderate or high risk</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-50">
@@ -490,7 +490,7 @@ export default function DashboardPage() {
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div>
-            <h3 className="text-sm font-bold text-gray-800">Recent Patients</h3>
+            <h3 className="text-sm font-bold text-gray-800">Recent Persons</h3>
             <p className="text-xs text-gray-400 mt-0.5">Latest registered users</p>
           </div>
           <Link
@@ -506,7 +506,7 @@ export default function DashboardPage() {
 
         {/* Table head */}
         <div className="hidden sm:grid grid-cols-12 gap-3 px-5 py-2.5 border-b border-gray-100 bg-gray-50/60">
-          <span className="col-span-5 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Patient</span>
+          <span className="col-span-5 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Person</span>
           <span className="col-span-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Age</span>
           <span className="col-span-3 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Living</span>
           <span className="col-span-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400 text-right">Joined</span>
@@ -532,7 +532,7 @@ export default function DashboardPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
               </svg>
             </div>
-            <p className="text-sm text-gray-400">No patients registered yet</p>
+            <p className="text-sm text-gray-400">No persons registered yet</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-50">

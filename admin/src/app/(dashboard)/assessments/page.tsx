@@ -198,7 +198,7 @@ function DetailModal({ a, onClose }: { a: Assessment; onClose: () => void }) {
           {/* User info */}
           {a.userId && (
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">Patient</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">Person</p>
               <div className="bg-gray-50 rounded-xl px-4 py-3 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold shrink-0">
                   {a.userId.name.slice(0, 2).toUpperCase()}
@@ -450,7 +450,7 @@ export default function AssessmentsPage() {
           </svg>
           <input
             type="text"
-            placeholder="Search task or patient…"
+            placeholder="Search task or person…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ color: '#111827' }}
@@ -481,7 +481,7 @@ export default function AssessmentsPage() {
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50/70">
                     <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">Task</th>
-                    <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 hidden md:table-cell">Patient</th>
+                    <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 hidden md:table-cell">Person</th>
                     <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 hidden sm:table-cell">Score</th>
                     <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">Risk</th>
                     <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 hidden lg:table-cell">Stability</th>

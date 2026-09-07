@@ -9,7 +9,7 @@ import { adminAxios } from "@/lib/axios";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard":   "Dashboard",
-  "/users":       "Patients",
+  "/users":       "Persons",
   "/assessments": "Assessments",
   "/reports":     "Reports",
   "/alerts":      "Alerts",

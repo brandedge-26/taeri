@@ -282,7 +282,7 @@ function DetailModal({ user, onClose }: { user: User; onClose: () => void }) {
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-sm font-bold text-gray-800">Patient Details</h2>
+          <h2 className="text-sm font-bold text-gray-800">Person Details</h2>
           <button
             onClick={onClose}
             className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
@@ -383,7 +383,7 @@ function DeleteModal({
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </div>
-          <h3 className="text-base font-bold text-gray-900 mb-1">Delete Patient</h3>
+          <h3 className="text-base font-bold text-gray-900 mb-1">Delete Person</h3>
           <p className="text-sm text-gray-500 leading-relaxed">
             Are you sure you want to delete{" "}
             <span className="font-semibold text-gray-800">{user.name}</span>?
@@ -545,8 +545,8 @@ export default function UsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Patients</h2>
-          <p className="text-xs text-gray-400 mt-0.5">{users.length} total patients</p>
+          <h2 className="text-lg font-bold text-gray-900">Persons</h2>
+          <p className="text-xs text-gray-400 mt-0.5">{users.length} total persons</p>
         </div>
         <div className="relative">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -568,7 +568,7 @@ export default function UsersPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Total Patients */}
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1">Total Patients</p>
+            <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1">Total Persons</p>
             <p className="text-2xl font-bold text-gray-900">{users.length}</p>
             <p className="text-xs text-gray-400 mt-1">Registered users</p>
           </div>
@@ -612,7 +612,7 @@ export default function UsersPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50/70">
-                    <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">Patient</th>
+                    <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400">Person</th>
                     <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 hidden md:table-cell">Email</th>
                     <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 hidden lg:table-cell">Age</th>
                     <th className="text-left px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 hidden lg:table-cell">Living</th>

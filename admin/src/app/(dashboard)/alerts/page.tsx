@@ -198,7 +198,7 @@ export default function AlertsPage() {
             </svg>
           </div>
           <p className="text-2xl font-bold text-gray-900">{uniquePatients}</p>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-0.5">Patients Affected</p>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-0.5">Persons Affected</p>
         </div>
 
       </div>
@@ -213,7 +213,7 @@ export default function AlertsPage() {
           <input
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Search by patient or task…"
+            placeholder="Search by person or task…"
             className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           />
         </div>
@@ -280,7 +280,7 @@ export default function AlertsPage() {
             {search || readFilter !== "all" ? "No alerts match your filter" : "No high-risk alerts"}
           </p>
           <p className="text-gray-400 text-sm">
-            {search || readFilter !== "all" ? "Try a different filter or search term" : "All patients are currently at low or moderate risk"}
+            {search || readFilter !== "all" ? "Try a different filter or search term" : "All persons are currently at low or moderate risk"}
           </p>
         </div>
       ) : (
@@ -306,7 +306,7 @@ export default function AlertsPage() {
                   {/* Main info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-1">
-                      <p className="font-bold text-gray-900 text-sm">{alert.user?.name ?? "Unknown Patient"}</p>
+                      <p className="font-bold text-gray-900 text-sm">{alert.user?.name ?? "Unknown Person"}</p>
                       <span className="text-gray-300 hidden sm:inline">·</span>
                       <p className="text-xs text-gray-400">{alert.user?.email ?? "—"}</p>
                       {alert.user?.age && (

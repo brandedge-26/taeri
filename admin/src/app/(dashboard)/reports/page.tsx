@@ -98,7 +98,7 @@ function exportCSV(rows: AtRiskPatient[]) {
 }
 
 function exportAssessmentsCSV(rows: Assessment[]) {
-  const headers = ["Patient", "Email", "Task", "Final Score", "Risk Level", "Date"];
+  const headers = ["Person", "Email", "Task", "Final Score", "Risk Level", "Date"];
   const lines = rows.map((a) => [
     a.userId?.name ?? "—", a.userId?.email ?? "—", a.taskName,
     a.finalScore, RISK_META[a.riskLevel]?.label ?? a.riskLevel, formatDate(a.createdAt),
@@ -180,14 +180,14 @@ export default function ReportsPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-gray-900">Reports</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Fall risk analysis across all patients</p>
+          <p className="text-sm text-gray-400 mt-0.5">Fall risk analysis across all persons</p>
         </div>
       </div>
 
       {/* ── Summary Strip ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: "At-Risk Patients", value: atRiskLoading ? "—" : atRisk.length, accent: "border-t-orange-400", icon: "text-orange-500", bg: "bg-orange-50",
+          { label: "At-Risk Persons", value: atRiskLoading ? "—" : atRisk.length, accent: "border-t-orange-400", icon: "text-orange-500", bg: "bg-orange-50",
             path: "M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" },
           { label: "High Risk", value: atRiskLoading ? "—" : highCount, accent: "border-t-red-500", icon: "text-red-500", bg: "bg-red-50",
             path: "M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" },
@@ -214,8 +214,8 @@ export default function ReportsPage() {
         {/* Table header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-b border-gray-100">
           <div>
-            <h3 className="text-sm font-bold text-gray-800">At-Risk Patients</h3>
-            <p className="text-xs text-gray-400 mt-0.5">{filteredAtRisk.length} patients shown</p>
+            <h3 className="text-sm font-bold text-gray-800">At-Risk Persons</h3>
+            <p className="text-xs text-gray-400 mt-0.5">{filteredAtRisk.length} persons shown</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {/* Search */}
@@ -226,7 +226,7 @@ export default function ReportsPage() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search patient..."
+                placeholder="Search person..."
                 className="pl-8 pr-3 py-1.5 text-xs border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary w-40"
               />
             </div>
@@ -259,7 +259,7 @@ export default function ReportsPage() {
 
         {/* Column heads */}
         <div className="hidden sm:grid grid-cols-12 gap-3 px-5 py-2.5 bg-gray-50/60 border-b border-gray-100">
-          {["Patient", "Risk", "Avg Score", "Age", "Living", "Assessments", "Last Assessment"].map((h, i) => (
+          {["Person", "Risk", "Avg Score", "Age", "Living", "Assessments", "Last Assessment"].map((h, i) => (
             <span key={h} className={`text-[11px] font-semibold uppercase tracking-wide text-gray-400 ${
               i === 0 ? "col-span-3" : i === 1 ? "col-span-2" : i === 6 ? "col-span-2 text-right" : "col-span-1"
             }`}>{h}</span>
@@ -284,7 +284,7 @@ export default function ReportsPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-sm font-semibold text-gray-700">No patients found</p>
+            <p className="text-sm font-semibold text-gray-700">No persons found</p>
             <p className="text-xs text-gray-400">Try changing filters or search query</p>
           </div>
         ) : (
@@ -388,7 +388,7 @@ export default function ReportsPage() {
 
         {/* Column heads */}
         <div className="hidden sm:grid grid-cols-12 gap-3 px-5 py-2.5 bg-gray-50/60 border-b border-gray-100">
-          <span className="col-span-4 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Patient</span>
+          <span className="col-span-4 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Person</span>
           <span className="col-span-3 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Task</span>
           <span className="col-span-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Risk</span>
           <span className="col-span-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">Score</span>
