@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { adminAxios } from "@/lib/axios";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface AtRiskPatient {
   _id: string;
@@ -74,72 +75,78 @@ function Skeleton({ className, style }: { className?: string; style?: React.CSSP
   return <div className={`bg-gray-100 rounded-lg animate-pulse ${className}`} style={style} />;
 }
 
-// ── Donut Chart ───────────────────────────────────────────────────────────────
+// ── Donut Chart (Recharts) ────────────────────────────────────────────────────
+
+const DONUT_COLORS = ["#10B981", "#F59E0B", "#EF4444"];
 
 function DonutChart({ green, yellow, red, total }: { green: number; yellow: number; red: number; total: number }) {
-  const r = 52;
-  const cx = 68;
-  const cy = 68;
-  const circumference = 2 * Math.PI * r;
+  const data = [
+    { name: "Low Risk",  value: green  },
+    { name: "Moderate",  value: yellow },
+    { name: "High Risk", value: red    },
+  ].filter((d) => d.value > 0);
 
-  const segments = [
-    { value: green,  color: "#10B981" },
-    { value: yellow, color: "#F59E0B" },
-    { value: red,    color: "#EF4444" },
-  ];
-
-  let offset = 0;
-  const arcs = segments.map((seg) => {
-    const pct    = total > 0 ? seg.value / total : 0;
-    const dash   = pct * circumference;
-    const gap    = circumference - dash;
-    const rotate = (offset / total) * 360 - 90;
-    offset += seg.value;
-    return { ...seg, dash, gap, rotate };
-  });
+  const colorMap: Record<string, string> = {
+    "Low Risk":  "#10B981",
+    "Moderate":  "#F59E0B",
+    "High Risk": "#EF4444",
+  };
 
   return (
-    <div className="flex items-center gap-6">
-      <div className="relative shrink-0">
-        <svg width="136" height="136" viewBox="0 0 136 136">
-          <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F3F4F6" strokeWidth="13" />
-          {arcs.map((arc, i) =>
-            arc.value > 0 ? (
-              <circle
-                key={i} cx={cx} cy={cy} r={r}
-                fill="none" stroke={arc.color} strokeWidth="13"
-                strokeDasharray={`${arc.dash - 2} ${arc.gap + 2}`}
-                strokeDashoffset={0} strokeLinecap="round"
-                transform={`rotate(${arc.rotate} ${cx} ${cy})`}
-                style={{ transition: "stroke-dasharray 0.6s ease" }}
-              />
-            ) : null
-          )}
-          <text x={cx} y={cy - 7} textAnchor="middle" style={{ fontSize: 21, fontWeight: 700, fill: "#111827" }}>
-            {total}
-          </text>
-          <text x={cx} y={cy + 10} textAnchor="middle" style={{ fontSize: 10, fill: "#9CA3AF" }}>
-            total
-          </text>
-        </svg>
+    <div className="w-full">
+      <ResponsiveContainer width="100%" height={220}>
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            innerRadius={65}
+            outerRadius={95}
+            paddingAngle={data.length > 1 ? 3 : 0}
+            dataKey="value"
+            strokeWidth={0}
+          >
+            {data.map((entry, i) => (
+              <Cell key={i} fill={colorMap[entry.name]} />
+            ))}
+          </Pie>
+          <Tooltip
+            formatter={(value: number, name: string) => [
+              `${value} (${Math.round((value / total) * 100)}%)`,
+              name,
+            ]}
+            contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
+          />
+          <Legend
+            iconType="circle"
+            iconSize={8}
+            formatter={(value) => <span style={{ fontSize: 12, color: "#6B7280" }}>{value}</span>}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+
+      {/* Center label overlay */}
+      <div className="flex justify-center -mt-[135px] mb-[95px] pointer-events-none">
+        <div className="flex flex-col items-center">
+          <span className="text-3xl font-bold text-gray-900">{total}</span>
+          <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">total</span>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-2.5 flex-1">
+      {/* Stats row */}
+      <div className="flex justify-around mt-2">
         {[
-          { label: "Low Risk",  count: green,  color: "#10B981", pill: "bg-emerald-50 text-emerald-700 ring-emerald-100" },
-          { label: "Moderate",  count: yellow, color: "#F59E0B", pill: "bg-amber-50 text-amber-700 ring-amber-100"       },
-          { label: "High Risk", count: red,    color: "#EF4444", pill: "bg-red-50 text-red-700 ring-red-100"             },
-        ].map(({ label, count, color, pill }) => {
-          const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-          return (
-            <div key={label} className="flex items-center gap-2.5">
-              <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-              <span className="text-xs text-gray-500 flex-1">{label}</span>
-              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ring-1 ${pill}`}>{count}</span>
-              <span className="text-[11px] text-gray-400 w-7 text-right">{pct}%</span>
-            </div>
-          );
-        })}
+          { label: "Low Risk",  value: green,  color: "#10B981" },
+          { label: "Moderate",  value: yellow, color: "#F59E0B" },
+          { label: "High Risk", value: red,    color: "#EF4444" },
+        ].map(({ label, value, color }) => (
+          <div key={label} className="flex flex-col items-center gap-0.5">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+            <span className="text-lg font-bold text-gray-800 tabular-nums">{value}</span>
+            <span className="text-[10px] text-gray-400">{label}</span>
+            <span className="text-[10px] text-gray-400">{total > 0 ? Math.round((value / total) * 100) : 0}%</span>
+          </div>
+        ))}
       </div>
     </div>
   );

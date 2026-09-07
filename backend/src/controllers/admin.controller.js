@@ -259,6 +259,49 @@ export const adminGetAlertsController = async (req, res, next) => {
     }
 };
 
+// Get Single User
+export const adminGetSingleUserController = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById(id).select("name email age livingSituation provider createdAt role");
+        if (!user || user.role === "admin") return res.status(404).json({ message: "User not found." });
+
+        const aggResult = await Assessment.aggregate([
+            { $match: { userId: user._id } },
+            { $group: { _id: null, count: { $sum: 1 }, avgScore: { $avg: "$finalScore" }, minScore: { $min: "$finalScore" }, maxScore: { $max: "$finalScore" }, lastDate: { $max: "$date" } } },
+        ]);
+        const agg = aggResult[0];
+        const avgScore = agg ? parseFloat(agg.avgScore.toFixed(2)) : null;
+
+        function scoreToRisk(s) {
+            if (s < 1.6) return "green";
+            if (s <= 5.0) return "yellow";
+            return "red";
+        }
+
+        return res.status(200).json({
+            success: true,
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                age: user.age,
+                livingSituation: user.livingSituation,
+                provider: user.provider,
+                createdAt: user.createdAt,
+                assessmentCount: agg?.count ?? 0,
+                avgScore,
+                lowestScore: agg ? parseFloat(agg.minScore.toFixed(2)) : null,
+                highestScore: agg ? parseFloat(agg.maxScore.toFixed(2)) : null,
+                lastAssessmentDate: agg?.lastDate ?? null,
+                overallRisk: avgScore !== null ? scoreToRisk(avgScore) : null,
+            }
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 // Delete Assessment
 export const adminDeleteAssessmentController = async (req, res, next) => {
     try {

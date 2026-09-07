@@ -111,6 +111,10 @@ export default function HomeScreen() {
   const yellowCount = weekAssessments.filter((a) => a.riskLevel === 'yellow').length;
   const redCount    = weekAssessments.filter((a) => a.riskLevel === 'red').length;
 
+  const fallLow      = weekAssessments.filter((a) => a.stability === 'very_stable').length;
+  const fallModerate = weekAssessments.filter((a) => a.stability === 'somewhat_unsteady').length;
+  const fallHigh     = weekAssessments.filter((a) => a.stability === 'very_unsteady').length;
+
   const avgScore = weekAssessments.length
     ? parseFloat((weekAssessments.reduce((s, a) => s + a.finalScore, 0) / weekAssessments.length).toFixed(2))
     : 0;
@@ -411,6 +415,66 @@ export default function HomeScreen() {
               </View>
             </View>
           </>
+        )}
+
+        {/* ── Fall Risk Distribution ─────────────────────────────────────── */}
+        {weekAssessments.length > 0 && (
+          <View className="mx-5 mt-4 bg-white rounded-3xl p-5" style={styles.cardShadow}>
+            <View className="flex-row items-center gap-2 mb-4">
+              <Ionicons name="shield-outline" size={18} color="#2563EB" />
+              <Text className="font-osbd text-text text-base">Fall Risk Distribution</Text>
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <PieChart
+                data={
+                  (fallLow + fallModerate + fallHigh) > 0
+                    ? [
+                        { value: fallLow      || 0.001, color: '#10B981' },
+                        { value: fallModerate || 0.001, color: '#F59E0B' },
+                        { value: fallHigh     || 0.001, color: '#EF4444' },
+                      ]
+                    : [{ value: 1, color: '#E2E8F0' }]
+                }
+                donut
+                radius={52}
+                innerRadius={36}
+                innerCircleColor="#ffffff"
+                centerLabelComponent={() => (
+                  <View style={{ alignItems: 'center' }}>
+                    <Text style={{ fontFamily: 'OSans-Bold', fontSize: 16, color: '#0F172A' }}>{weekAssessments.length}</Text>
+                    <Text style={{ fontFamily: 'OSans-Regular', fontSize: 8, color: '#94A3B8', marginTop: -2 }}>total</Text>
+                  </View>
+                )}
+                strokeWidth={0}
+              />
+              <View style={{ flex: 1, paddingLeft: 16, gap: 8 }}>
+                {([
+                  { label: 'Low Fall Risk',      count: fallLow,      color: '#10B981' },
+                  { label: 'Moderate Fall Risk',  count: fallModerate, color: '#F59E0B' },
+                  { label: 'High Fall Risk',      count: fallHigh,     color: '#EF4444' },
+                ] as const).map((item) => {
+                  const pct = weekAssessments.length > 0 ? Math.round((item.count / weekAssessments.length) * 100) : 0;
+                  return (
+                    <View key={item.label} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: item.color }} />
+                        <Text style={{ fontFamily: 'OSans-Medium', fontSize: 11, color: '#475569' }}>{item.label}</Text>
+                      </View>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                        <Text style={{ fontFamily: 'OSans-Bold', fontSize: 12, color: item.color }}>{item.count}</Text>
+                        <Text style={{ fontFamily: 'OSans-Regular', fontSize: 9, color: '#CBD5E1' }}>({pct}%)</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+                <View style={{ flexDirection: 'row', height: 5, borderRadius: 99, overflow: 'hidden', gap: 1.5, marginTop: 2 }}>
+                  {fallLow      > 0 && <View style={{ flex: fallLow,      backgroundColor: '#10B981' }} />}
+                  {fallModerate > 0 && <View style={{ flex: fallModerate, backgroundColor: '#F59E0B' }} />}
+                  {fallHigh     > 0 && <View style={{ flex: fallHigh,     backgroundColor: '#EF4444' }} />}
+                </View>
+              </View>
+            </View>
+          </View>
         )}
 
         {/* ── Recent assessments ─────────────────────────────────────────── */}

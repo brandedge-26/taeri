@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { adminAxios } from "@/lib/axios";
 
@@ -261,96 +262,6 @@ function AssessmentsDrawer({ user, onClose }: { user: User; onClose: () => void 
   );
 }
 
-// ── Detail Modal ──────────────────────────────────────────────────────────────
-
-function DetailModal({ user, onClose }: { user: User; onClose: () => void }) {
-  const backdropRef = useRef<HTMLDivElement>(null);
-  const ac = avatarColor(user.name);
-
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [onClose]);
-
-  return (
-    <div
-      ref={backdropRef}
-      onClick={(e) => { if (e.target === backdropRef.current) onClose(); }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
-    >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-sm font-bold text-gray-800">Person Details</h2>
-          <button
-            onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="px-6 py-5">
-          {/* Avatar + name */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className={`w-14 h-14 rounded-2xl ${ac.bg} ${ac.text} flex items-center justify-center text-lg font-bold shrink-0`}>
-              {initials(user.name)}
-            </div>
-            <div>
-              <p className="text-base font-bold text-gray-900">{user.name}</p>
-              <p className="text-sm text-gray-400 mt-0.5">{user.email}</p>
-            </div>
-          </div>
-
-          {/* Risk Level banner */}
-          {user.overallRisk && (
-            <div className={`flex items-center justify-between rounded-xl border px-4 py-3 mb-1 ${RISK_STYLES[user.overallRisk].badge}`}>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-0.5">Overall Risk Level</p>
-                <p className="text-base font-bold">{RISK_STYLES[user.overallRisk].label}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-0.5">Avg Score</p>
-                <p className="text-xl font-bold tabular-nums">{user.avgScore}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Info grid */}
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { label: "Age",              value: user.age ? `${user.age} yrs` : "—" },
-              { label: "Living Situation", value: user.livingSituation ? LIVING_LABELS[user.livingSituation] ?? user.livingSituation : "—" },
-              { label: "Provider",         value: user.provider === "google" ? "Google" : "Email" },
-              { label: "Assessments",      value: `${user.assessmentCount}` },
-              { label: "Joined",           value: formatDate(user.createdAt) },
-            ].map(({ label, value }) => (
-              <div key={label} className="bg-gray-50 rounded-xl px-4 py-3">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">{label}</p>
-                <p className="text-sm font-semibold text-gray-800">{value}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 pb-5">
-          <button
-            onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-gray-100 text-sm font-semibold text-gray-600 hover:bg-gray-200 transition-colors"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── Delete Confirm Modal ───────────────────────────────────────────────────────
 
 function DeleteModal({
@@ -500,7 +411,6 @@ export default function UsersPage() {
   const [loading, setLoading]       = useState(true);
   const [search, setSearch]         = useState("");
   const [page, setPage]             = useState(1);
-  const [detailUser, setDetailUser]   = useState<User | null>(null);
   const [deleteUser, setDeleteUser]   = useState<User | null>(null);
   const [drawerUser, setDrawerUser]   = useState<User | null>(null);
   const [deleting, setDeleting]       = useState(false);
@@ -656,17 +566,16 @@ export default function UsersPage() {
                         {/* Actions */}
                         <td className="px-5 py-3.5">
                           <div className="flex items-center justify-center gap-1.5">
-                            {/* View detail */}
-                            <button
-                              onClick={() => setDetailUser(u)}
+                            {/* View profile */}
+                            <Link
+                              href={`/users/${u._id}`}
                               className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-primary hover:bg-primary/10 transition-colors"
-                              title="View details"
+                              title="View profile"
                             >
                               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                               </svg>
-                            </button>
+                            </Link>
                             {/* Assessments drawer */}
                             <button
                               onClick={() => setDrawerUser(u)}
@@ -706,7 +615,6 @@ export default function UsersPage() {
       {drawerUser && <AssessmentsDrawer user={drawerUser} onClose={closeDrawer} />}
 
       {/* Modals */}
-      {detailUser && <DetailModal user={detailUser} onClose={() => setDetailUser(null)} />}
       {deleteUser && (
         <DeleteModal
           user={deleteUser}

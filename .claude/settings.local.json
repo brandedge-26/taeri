@@ -9,7 +9,8 @@
       "Bash(python -c ':*)",
       "Bash(pip install:*)",
       "Bash(node -e \"console.log\\('node ok'\\)\")",
-      "Bash(xargs grep:*)"
+      "Bash(xargs grep:*)",
+      "Bash(npx next:*)"
     ]
   }
 }
